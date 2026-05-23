@@ -1,828 +1,620 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>言霊盤：音の深層</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700;900&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg:#07080f; --bg2:#0c0e1a;
-  --gold:#c8a850; --gold-dim:#7a6030;
-  --text:#d0c4a0; --text-dim:#6a5e40; --text-faint:#2e2818;
-  --border:rgba(200,168,80,.12);
-  --c-a:#8ab0d8; --c-i:#e07850; --c-u:#80c070; --c-e:#5098d0; --c-o:#b08840;
-  --reion:#9060c0;
-  --reion-bg:rgba(90,40,140,.1);
-  --reion-border:rgba(110,60,170,.22);
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  background:var(--bg);color:var(--text);
-  font-family:'Shippori Mincho','Noto Serif JP',serif;
-  min-height:100vh;padding:2.5rem 1rem 4rem;
-  background-image:
-    radial-gradient(ellipse 60% 40% at 20% 10%,rgba(200,168,80,.04) 0%,transparent 70%),
-    radial-gradient(ellipse 50% 60% at 80% 90%,rgba(80,50,150,.05) 0%,transparent 70%);
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>言霊波動ジェネレーター — 音の深層 V3</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+JP:wght@300;600&display=swap');
+        
+        body {
+            background-color: #0a0c14;
+            color: #d4c8a8;
+            font-family: 'Noto Serif JP', 'Cinzel', serif;
+            overflow-x: hidden;
+        }
+        .text-brass { color: #d4c8a8; }
+        .bg-dark-void { background-color: #0a0c14; }
+        .border-brass { border-color: rgba(212, 200, 168, 0.3); }
+        
+        /* メビウスの輪による世界反転エフェクト */
+        .mebius-invert {
+            filter: invert(0.9) hue-rotate(180deg);
+            background-color: #d4c8a8 !important;
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-/* ── TITLE ── */
-.title-wrap{text-align:center;margin-bottom:2rem;animation:fadeDown .7s ease both}
-.title-sub{font-size:.6rem;letter-spacing:.5em;color:var(--gold-dim);margin-bottom:.5rem}
-h1{font-family:'Noto Serif JP',serif;font-weight:300;font-size:clamp(1.4rem,4vw,2rem);
-   letter-spacing:.25em;color:#e8d890;text-shadow:0 0 40px rgba(200,180,80,.25);line-height:1.4}
-.title-desc{font-size:.65rem;color:var(--text-dim);margin-top:.5rem;letter-spacing:.12em}
-
-/* ── PANEL ── */
-.panel{min-height:90px;margin-bottom:1.4rem;padding:.9rem 1.1rem;
-  border:1px solid transparent;border-radius:6px;
-  transition:background .25s,border .25s;
-  display:flex;align-items:flex-start;gap:1rem;
-  animation:fadeDown .7s .1s ease both}
-.panel.active-normal{background:rgba(200,168,80,.06);border-color:rgba(200,168,80,.16)}
-.panel.active-ghost{background:var(--reion-bg);border-color:var(--reion-border)}
-.panel-empty{color:var(--text-faint);font-size:.72rem;letter-spacing:.1em;padding-top:.5rem;align-self:center}
-.panel-kana{font-size:2.4rem;line-height:1;min-width:2.8rem;text-align:center;flex-shrink:0}
-.panel-shape-wrap{display:flex;justify-content:center;margin-top:.3rem}
-.panel-right{flex:1}
-.panel-tags{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-bottom:.25rem}
-.panel-meaning{font-size:.95rem;font-weight:700;letter-spacing:.04em}
-.tag{font-size:.52rem;border-radius:3px;padding:.06rem .28rem;letter-spacing:.04em}
-.tag-numrei{color:#8a6840;border:1px solid #5a4030}
-.tag-reion{color:var(--reion);border:1px solid rgba(110,60,170,.4)}
-.panel-desc{font-size:.72rem;color:#8a7850;line-height:1.6;margin-bottom:.3rem}
-.panel-meta{display:flex;gap:1rem;flex-wrap:wrap;font-size:.58rem;color:#5a4e32}
-.panel-meta span{color:#8a7040}
-
-/* ── TABLE ── */
-.table-wrap{overflow-x:auto;padding-bottom:.5rem;animation:fadeDown .7s .2s ease both}
-table{border-collapse:collapse;width:100%;min-width:500px}
-thead th{padding:.5rem .3rem;text-align:center;border-bottom:1px solid var(--border)}
-thead th.label-col{text-align:left;padding:.5rem .7rem;font-size:.56rem;color:var(--text-dim);
-  letter-spacing:.1em;font-weight:400}
-.th-kana{font-size:1.1rem;line-height:1.1}
-.th-elem{font-size:.52rem;letter-spacing:.03em;margin-top:.05rem}
-.th-shape{display:flex;justify-content:center;margin-top:.18rem}
-.th-iro{font-size:.46rem;margin-top:.1rem;color:var(--text-dim)}
-tbody tr td{border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
-.row-label{padding:.28rem .7rem;white-space:nowrap}
-.row-con{font-size:.82rem;color:var(--gold);font-family:monospace;min-width:1.2rem;display:inline-block}
-.row-name{font-size:.72rem;color:#7a6840;margin-left:.35rem}
-.row-sub{font-size:.52rem;color:#4a3c22}
-.cell-td{padding:.2rem .12rem;text-align:center;cursor:pointer;user-select:none;transition:transform .15s}
-.cell-td:hover{transform:scale(1.1)}
-.cell-td.selected{transform:scale(1.12)}
-.cell-inner{padding:.22rem .08rem;border-radius:4px;border:1px solid transparent;
-  transition:background .15s,border .15s,box-shadow .15s}
-.cell-td.selected .cell-inner,.cell-td:hover .cell-inner{box-shadow:0 0 10px rgba(200,168,80,.1)}
-.cell-kana{font-size:clamp(.9rem,2.2vw,1.2rem);line-height:1.2;transition:text-shadow .15s}
-.cell-numrei{font-size:.42rem;color:#7a5830;margin-top:.03rem}
-.ghost{opacity:.3}.ghost:hover{opacity:.55}
-
-/* ── ん ── */
-.nn-card{margin-top:1.5rem;padding:.9rem 1.1rem;background:rgba(130,110,155,.07);
-  border:1px solid rgba(130,110,155,.22);border-radius:6px;
-  display:flex;align-items:flex-start;gap:1rem;animation:fadeDown .7s .3s ease both}
-.nn-kana{font-size:2rem;color:#a090c0;text-align:center;min-width:42px;line-height:1;
-  text-shadow:0 0 18px rgba(150,120,200,.35)}
-.nn-label{font-size:.48rem;color:#6a5080;margin-top:.15rem;text-align:center}
-.nn-title{font-size:.88rem;font-weight:700;color:#b0a0c8}
-.nn-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0}
-.nn-tag{font-size:.52rem;color:#6a5080;border:1px solid #4a3860;border-radius:3px;padding:.06rem .25rem}
-.nn-desc{font-size:.68rem;color:#7a6890;line-height:1.6}
-.nn-meta{font-size:.58rem;color:#4a3860;margin-top:.3rem}
-
-/* ── ACCORDION ── */
-.acc{margin-top:.8rem;animation:fadeDown .7s .35s ease both}
-.acc-header{display:flex;align-items:center;gap:.7rem;padding:.5rem .9rem;
-  border-radius:6px;cursor:pointer;transition:opacity .15s;user-select:none}
-.acc-header:hover{opacity:.75}
-.acc-header.mod{background:rgba(60,80,120,.1);border:1px solid rgba(80,120,190,.2)}
-.acc-header.rei{background:var(--reion-bg);border:1px solid var(--reion-border)}
-.acc-title-mod{font-size:.65rem;color:#6888b0;letter-spacing:.12em}
-.acc-title-rei{font-size:.65rem;color:#9070b0;letter-spacing:.12em}
-.acc-hint{font-size:.55rem;margin-left:auto}
-.acc-hint-mod{color:#4a6080}.acc-hint-rei{color:#5a4070}
-.acc-body{display:none;padding-top:.75rem}
-.acc-body.open{display:grid}
-.mod-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem}
-.mod-card{padding:.8rem .95rem;border-radius:5px}
-.mod-card.soku{background:rgba(60,80,130,.08);border:1px solid rgba(80,120,190,.18)}
-.mod-card.you{background:rgba(70,100,50,.08);border:1px solid rgba(110,160,70,.18)}
-.mod-kana{font-size:1.55rem;line-height:1}
-.mod-kana.soku{color:#80a0d0}.mod-kana.you{color:#90c060}
-.mod-sub{font-size:.6rem;margin-left:.4rem;vertical-align:middle}
-.mod-sub.soku{color:#5a7090}.mod-sub.you{color:#607050}
-.mod-title{font-size:.68rem;font-weight:700;margin:.3rem 0 .2rem}
-.mod-title.soku{color:#88a8d8}.mod-title.you{color:#88b058}
-.mod-desc{font-size:.62rem;line-height:1.55}
-.mod-desc.soku{color:#5a6880}.mod-desc.you{color:#587050}
-.mod-ex{font-size:.58rem;margin-top:.3rem;padding-top:.25rem;
-  border-top:1px solid rgba(100,150,60,.15);color:#486040}
-.rei-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.6rem}
-.rei-card{padding:.65rem .85rem;background:rgba(80,40,120,.07);
-  border:1px solid var(--reion-border);border-radius:5px}
-.rei-kana{font-size:1.3rem;color:var(--reion)}
-.rei-row{font-size:.56rem;color:#6a4090;font-family:monospace;margin-left:.4rem;vertical-align:middle}
-.rei-meaning{font-size:.72rem;font-weight:700;color:#b090c0;margin-top:.2rem}
-.rei-desc{font-size:.6rem;color:#6a5080;margin-top:.18rem;line-height:1.5}
-
-/* ── LEGEND ── */
-.legend{margin-top:1.5rem;padding-top:.9rem;border-top:1px solid rgba(255,255,255,.04);
-  display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;font-size:.58rem;color:#4a4030;
-  animation:fadeDown .7s .4s ease both}
-.legend-item{display:flex;align-items:center;gap:.28rem}
-.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.sq{width:7px;height:7px;border-radius:2px;flex-shrink:0}
-.footer{text-align:center;margin-top:1rem;font-size:.54rem;color:var(--text-faint);letter-spacing:.1em}
-
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   形霊変調アニメーション（子音ごと）
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-/* ー 根源：純粋・静止。ゆっくり呼吸するだけ */
-@keyframes anim-base { 0%,100%{opacity:.85} 50%{opacity:1} }
-.shape-ROOT { animation:anim-base 4s ease-in-out infinite }
-
-/* K 光輝：外へ放射・拡張。明滅しながら大きくなる */
-@keyframes anim-K {
-  0%  { transform:scale(1);   filter:brightness(1)   drop-shadow(0 0 0px currentColor) }
-  50% { transform:scale(1.28); filter:brightness(1.9) drop-shadow(0 0 8px currentColor) }
-  100%{ transform:scale(1);   filter:brightness(1)   drop-shadow(0 0 0px currentColor) }
-}
-.shape-K { animation:anim-K 1.8s ease-in-out infinite }
-
-/* G 暗影：内へ反転・吸収。縮みながら暗くなる */
-@keyframes anim-G {
-  0%  { transform:scale(1);    filter:brightness(1) invert(0) }
-  40% { transform:scale(.68);  filter:brightness(.25) invert(.15) }
-  100%{ transform:scale(1);    filter:brightness(1) invert(0) }
-}
-.shape-G { animation:anim-G 2.4s ease-in-out infinite }
-
-/* S 間隙：縦に分割・裂断。X軸を引き裂くように歪む */
-@keyframes anim-S {
-  0%  { transform:scaleX(1)    skewX(0deg) }
-  30% { transform:scaleX(.35)  skewX(8deg) }
-  55% { transform:scaleX(1.4)  skewX(-4deg) }
-  100%{ transform:scaleX(1)    skewX(0deg) }
-}
-.shape-S { animation:anim-S 2s ease-in-out infinite }
-
-/* Z 充填：圧縮・充填。外から中心に向かって詰まっていく */
-@keyframes anim-Z {
-  0%  { transform:scale(1);    filter:brightness(1) }
-  60% { transform:scale(1.35); filter:brightness(.7) saturate(1.5) }
-  80% { transform:scale(.9);   filter:brightness(.9) }
-  100%{ transform:scale(1);    filter:brightness(1) }
-}
-.shape-Z { animation:anim-Z 2.2s ease-in-out infinite }
-
-/* T 具現：輪郭を強調・固形化。stroke が太くなるように輝く */
-@keyframes anim-T {
-  0%  { filter:drop-shadow(0 0 0px currentColor) brightness(1) }
-  50% { filter:drop-shadow(0 0 6px currentColor) drop-shadow(0 0 2px currentColor) brightness(1.5) }
-  100%{ filter:drop-shadow(0 0 0px currentColor) brightness(1) }
-}
-.shape-T { animation:anim-T 1.6s ease-in-out infinite }
-
-/* D 定着：下方に錨付け。重力に引かれるようにゆっくり沈む */
-@keyframes anim-D {
-  0%  { transform:translateY(0)    scale(1) }
-  55% { transform:translateY(5px)  scale(.96) }
-  100%{ transform:translateY(0)    scale(1) }
-}
-.shape-D { animation:anim-D 2.6s ease-in-out infinite }
-
-/* N 命名：輪郭を顕在化。無から浮かび上がるように opacity パルス */
-@keyframes anim-N {
-  0%  { opacity:.1; transform:scale(.85) }
-  60% { opacity:1;  transform:scale(1.05) }
-  100%{ opacity:.1; transform:scale(.85) }
-}
-.shape-N { animation:anim-N 2s ease-in-out infinite }
-
-/* H 不可触：霞・薄化・遠退。極限に薄く、ブレる */
-@keyframes anim-H {
-  0%  { opacity:.55; filter:blur(0px) }
-  40% { opacity:.12; filter:blur(2.5px) }
-  70% { opacity:.35; filter:blur(.8px) }
-  100%{ opacity:.55; filter:blur(0px) }
-}
-.shape-H { animation:anim-H 3s ease-in-out infinite }
-
-/* B 打破：爆砕・断片化。突発的な skew + blur で壊れる */
-@keyframes anim-B {
-  0%  { transform:skew(0deg,0deg)     scale(1);   filter:blur(0px) brightness(1) }
-  10% { transform:skew(14deg,-8deg)   scale(1.2); filter:blur(1.5px) brightness(2) }
-  18% { transform:skew(-10deg,6deg)   scale(.85); filter:blur(.8px) brightness(.8) }
-  28% { transform:skew(6deg,-3deg)    scale(1.1); filter:blur(.4px) }
-  40% { transform:skew(0deg,0deg)     scale(1);   filter:blur(0px) brightness(1) }
-  100%{ transform:skew(0deg,0deg)     scale(1);   filter:blur(0px) brightness(1) }
-}
-.shape-B { animation:anim-B 2.8s ease-in-out infinite }
-
-/* P 瞬発：点状に飛散。鋭く弾けてすぐ消える */
-@keyframes anim-P {
-  0%  { transform:scale(1);    opacity:1;   filter:brightness(1) }
-  8%  { transform:scale(1.55); opacity:1;   filter:brightness(2.2) }
-  20% { transform:scale(.7);   opacity:.5;  filter:brightness(.7) }
-  35% { transform:scale(1);    opacity:1;   filter:brightness(1) }
-  100%{ transform:scale(1);    opacity:1;   filter:brightness(1) }
-}
-.shape-P { animation:anim-P 1.4s ease-in-out infinite }
-
-/* M 原初：球状に溶融。ふわふわと溶けるように揺れる */
-@keyframes anim-M {
-  0%  { transform:scale(1)    rotate(0deg);   filter:blur(0px) brightness(1) }
-  33% { transform:scale(1.12) rotate(4deg);   filter:blur(.6px) brightness(.9) }
-  66% { transform:scale(.92)  rotate(-3deg);  filter:blur(.3px) brightness(1.1) }
-  100%{ transform:scale(1)    rotate(0deg);   filter:blur(0px) brightness(1) }
-}
-.shape-M { animation:anim-M 3.5s ease-in-out infinite }
-
-/* Y 無限：無限に拡張・増殖。どこまでも広がり続ける */
-@keyframes anim-Y {
-  0%  { transform:scale(.7);  opacity:1 }
-  70% { transform:scale(1.5); opacity:.3 }
-  71% { transform:scale(.7);  opacity:0 }
-  72% { transform:scale(.7);  opacity:1 }
-  100%{ transform:scale(.7);  opacity:1 }
-}
-.shape-Y { animation:anim-Y 2s ease-out infinite }
-
-/* R 流転：渦状に永続回転 */
-@keyframes anim-R {
-  from{ transform:rotate(0deg) }
-  to  { transform:rotate(360deg) }
-}
-.shape-R { animation:anim-R 3s linear infinite }
-
-/* W 閉鎖：内側へ収縮し、完全に閉じる */
-@keyframes anim-W {
-  0%  { transform:scale(1);   filter:brightness(1) }
-  50% { transform:scale(.5);  filter:brightness(.4) saturate(.3) }
-  100%{ transform:scale(1);   filter:brightness(1) }
-}
-.shape-W { animation:anim-W 2.6s ease-in-out infinite }
-
-/* ── CELL HOVER GLOW（子音行ごとに色を変える）
-     ※ row-K は td 自身に付くクラスなので、スペースなし複合セレクタで書く ── */
-/* K */ .cell-td.row-K:hover .cell-kana{ text-shadow:0 0 16px var(--c-a),0 0 32px #fff8; }
-/* G */ .cell-td.row-G:hover .cell-kana{ text-shadow:0 0 12px rgba(0,0,0,.8); filter:brightness(.5); }
-/* S */ .cell-td.row-S:hover .cell-inner{ transform:scaleX(.88) skewX(5deg); }
-/* Z */ .cell-td.row-Z:hover .cell-kana{ letter-spacing:-.08em; filter:brightness(.75) saturate(1.6); }
-/* T */ .cell-td.row-T:hover .cell-kana{ text-shadow:0 0 0 2px currentColor,0 0 10px currentColor; font-weight:900; }
-/* D */ .cell-td.row-D:hover .cell-inner{ transform:translateY(3px) scale(.96); }
-/* N */ .cell-td.row-N:hover .cell-kana{ animation:anim-N-kana .8s ease-in-out 1; }
-/* H */ .cell-td.row-H:hover .cell-kana{ filter:blur(.8px) brightness(1.4); opacity:.4; }
-/* B */ .cell-td.row-B:hover .cell-kana{ animation:anim-B-kana .5s ease-in-out 1; }
-/* P */ .cell-td.row-P:hover .cell-kana{ animation:anim-P-kana .35s ease-out 1; }
-/* M */ .cell-td.row-M:hover .cell-kana{ filter:blur(.4px); transition:filter .4s; }
-/* Y */ .cell-td.row-Y:hover .cell-kana{ animation:anim-Y-kana .6s ease-out 1; }
-/* R */ .cell-td.row-R:hover .cell-kana{ animation:anim-R-kana .6s linear infinite; }
-/* W */ .cell-td.row-W:hover .cell-kana{ animation:anim-W-kana .8s ease-in-out 1; }
-/* ROOT（ー行）*/
-.cell-td.row-ROOT:hover .cell-kana{ opacity:.7; transition:opacity .3s; }
-
-@keyframes anim-N-kana{ 0%{opacity:0;transform:scale(.8)} 100%{opacity:1;transform:scale(1)} }
-@keyframes anim-B-kana{ 0%,100%{transform:none} 25%{transform:skewX(14deg)} 50%{transform:skewX(-10deg)} 75%{transform:skewX(5deg)} }
-@keyframes anim-P-kana{ 0%{transform:scale(1)} 40%{transform:scale(1.5)} 100%{transform:scale(1)} }
-@keyframes anim-Y-kana{ 0%{transform:scale(.8);opacity:.5} 100%{transform:scale(1.2);opacity:0} }
-@keyframes anim-R-kana{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-@keyframes anim-W-kana{ 0%{transform:scale(1)} 50%{transform:scale(.5)} 100%{transform:scale(1)} }
-
-/* ━━ 数霊アコーディオン ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-.acc-header.numrei{ background:rgba(80,60,20,.12); border:1px solid rgba(160,130,50,.22); }
-.acc-title-numrei{ font-size:.65rem; color:#b09050; letter-spacing:.12em; }
-.acc-hint-numrei{ color:#6a5030; }
-.numrei-grid{ grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:.45rem; }
-.numrei-card{
-  display:flex; align-items:center; gap:.55rem;
-  padding:.42rem .65rem;
-  background:rgba(160,130,50,.05);
-  border:1px solid rgba(160,130,50,.14);
-  border-radius:4px;
-  cursor:default;
-  transition:background .15s;
-}
-.numrei-card:hover{ background:rgba(160,130,50,.12); }
-.numrei-val{ font-size:1.1rem; color:#c8a840; font-weight:700; min-width:2rem; text-align:right; line-height:1; }
-.numrei-body{ flex:1; }
-.numrei-kana{ font-size:1rem; line-height:1; }
-.numrei-label{ font-size:.48rem; color:#6a5030; margin-top:.1rem; }
-
-/* ━━ 言霊錬金術シミュレーター ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-.sim-wrap{
-  margin-top:2rem;padding:1.1rem 1rem 1.3rem;
-  background:rgba(180,150,60,.035);
-  border:1px solid rgba(180,150,60,.2);
-  border-radius:8px;
-  animation:fadeDown .7s .45s ease both;
-}
-.sim-header{display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem;flex-wrap:wrap;}
-.sim-title{font-size:.72rem;letter-spacing:.2em;color:var(--gold);}
-.sim-subtitle{font-size:.58rem;color:var(--gold-dim);}
-.sim-hint{font-size:.52rem;color:var(--text-faint);margin-left:auto;}
-.sim-clear{
-  background:transparent;border:1px solid rgba(180,150,60,.3);
-  color:var(--gold-dim);font-family:inherit;font-size:.6rem;
-  padding:.24rem .7rem;border-radius:4px;cursor:pointer;
-  letter-spacing:.1em;transition:all .15s;
-}
-.sim-clear:hover{background:rgba(180,150,60,.14);color:var(--gold);border-color:var(--gold);}
-.sim-slots{
-  display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;
-  min-height:76px;padding:.4rem .2rem;
-  border-bottom:1px solid rgba(180,150,60,.1);
-  margin-bottom:.9rem;
-}
-.sim-empty-hint{color:var(--text-faint);font-size:.62rem;letter-spacing:.1em;}
-.slot-card{
-  display:flex;flex-direction:column;align-items:center;gap:.12rem;
-  padding:.3rem .4rem;
-  background:rgba(200,168,80,.06);
-  border:1px solid rgba(200,168,80,.22);
-  border-radius:5px;min-width:40px;
-  animation:slotIn .24s cubic-bezier(.34,1.56,.64,1) both;
-  position:relative;cursor:pointer;transition:opacity .15s,border-color .15s;
-}
-.slot-card:hover{opacity:.6;border-color:rgba(200,60,60,.5);}
-.slot-card::after{
-  content:"✕";position:absolute;top:-5px;right:-5px;
-  font-size:.45rem;background:rgba(180,40,40,.85);color:#fff;
-  border-radius:50%;width:12px;height:12px;line-height:12px;
-  text-align:center;opacity:0;transition:opacity .12s;
-}
-.slot-card:hover::after{opacity:1;}
-.slot-kana{font-size:1.35rem;line-height:1;}
-.slot-numrei{font-size:.4rem;color:#8a6840;}
-@keyframes slotIn{
-  from{opacity:0;transform:scale(.55) translateY(-10px)}
-  to  {opacity:1;transform:scale(1) translateY(0)}
-}
-.sim-result{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;}
-@media(max-width:480px){.sim-result{grid-template-columns:1fr;}}
-.sim-result-block{
-  padding:.55rem .72rem;
-  background:rgba(0,0,0,.22);
-  border:1px solid rgba(200,168,80,.1);
-  border-radius:5px;
-}
-.sim-result-label{font-size:.5rem;color:var(--gold-dim);letter-spacing:.14em;margin-bottom:.28rem;}
-.sim-result-value{font-size:1.05rem;color:#e8d890;font-weight:700;line-height:1.25;}
-.sim-result-sub{font-size:.56rem;color:#5a4a28;margin-top:.2rem;line-height:1.45;}
-.sim-shapes{display:flex;gap:.35rem;flex-wrap:wrap;align-items:center;min-height:32px;}
-.sim-shape-item{display:inline-block;}
-
-/* ━━ 数霊アコーディオン ━━ */
-.acc-header.numrei-acc{background:rgba(140,96,32,.1);border:1px solid rgba(180,130,50,.22);}
-.acc-title-numrei{font-size:.65rem;color:#c8a050;letter-spacing:.12em;}
-.acc-hint-numrei{color:#7a6030;}
-.numrei-grid{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:.52rem;}
-.numrei-card{
-  padding:.52rem .72rem;
-  background:rgba(140,96,32,.07);
-  border:1px solid rgba(180,130,50,.18);
-  border-radius:5px;
-  display:flex;align-items:center;gap:.65rem;
-  transition:background .14s;
-}
-.numrei-card:hover{background:rgba(140,96,32,.14);}
-.numrei-val{
-  font-size:1.4rem;font-weight:700;color:var(--gold);
-  line-height:1;min-width:2.5rem;text-align:right;
-  text-shadow:0 0 14px rgba(200,168,80,.35);
-  font-family:monospace;letter-spacing:-.02em;
-}
-.numrei-kana-col{display:flex;flex-direction:column;gap:.08rem;}
-.numrei-kana{font-size:1.1rem;color:#d0b870;}
-.numrei-meaning{font-size:.54rem;color:#7a6040;}
-.numrei-con{font-size:.46rem;color:#5a4828;font-family:monospace;}
-</style>
+        /* 創世記プロローグ用のフェードイン・アウト */
+        .line-fade {
+            animation: fadeInOut 4s forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+            15% { opacity: 1; transform: translateY(0); filter: blur(0); }
+            85% { opacity: 1; transform: translateY(0); filter: blur(0); }
+            100% { opacity: 0; transform: translateY(-10px); filter: blur(4px); }
+        }
+    </style>
 </head>
 <body>
 
-<div class="title-wrap">
-  <div class="title-sub">KOTODAMA NO FUNE WO AMU — V3</div>
-  <h1>言霊盤：音の深層</h1>
-  <div class="title-desc">子音（指向性）× 母音（五元素）× 形霊（幾何）× 色霊（波長）× 形霊変調（動的アニメーション）</div>
-</div>
+    <div id="root"></div>
 
-<div class="panel" id="panel">
-  <div class="panel-empty">— セルを選択すると解釈・形霊・色霊・変調が表示されます —</div>
-</div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-<div class="table-wrap">
-<table>
-<thead>
-  <tr>
-    <th class="label-col">子音</th>
-    <th><div class="th-kana" style="color:var(--c-a)">あ</div><div class="th-elem" style="color:var(--c-a)">空</div><div class="th-shape"><svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="6.5" fill="none" stroke="var(--c-a)" stroke-width="1.3"/></svg></div><div class="th-iro">しろ</div></th>
-    <th><div class="th-kana" style="color:var(--c-i)">い</div><div class="th-elem" style="color:var(--c-i)">火</div><div class="th-shape"><svg width="18" height="18" viewBox="0 0 18 18"><polygon points="9,2 16.2,15.5 1.8,15.5" fill="none" stroke="var(--c-i)" stroke-width="1.3"/></svg></div><div class="th-iro">あか</div></th>
-    <th><div class="th-kana" style="color:var(--c-u)">う</div><div class="th-elem" style="color:var(--c-u)">風</div><div class="th-shape"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M9,9 C11,8.4 13,8.9 12.8,10.9 C12.5,13 10.4,14.4 8.2,13.5 C5.8,12.5 5.3,9.5 7,7.5 C8.5,5.8 11.2,5.5 12.5,7" fill="none" stroke="var(--c-u)" stroke-width="1.3"/></svg></div><div class="th-iro">き</div></th>
-    <th><div class="th-kana" style="color:var(--c-e)">え</div><div class="th-elem" style="color:var(--c-e)">水</div><div class="th-shape"><svg width="18" height="18" viewBox="0 0 18 18"><polygon points="9,2 15.2,5.5 15.2,12.5 9,16 2.8,12.5 2.8,5.5" fill="none" stroke="var(--c-e)" stroke-width="1.3"/></svg></div><div class="th-iro">あお</div></th>
-    <th><div class="th-kana" style="color:var(--c-o)">お</div><div class="th-elem" style="color:var(--c-o)">土</div><div class="th-shape"><svg width="18" height="18" viewBox="0 0 18 18"><rect x="3" y="3" width="12" height="12" fill="none" stroke="var(--c-o)" stroke-width="1.3"/></svg></div><div class="th-iro">くろ</div></th>
-  </tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
+        // --- 根源データ定義 ---
+        const MOYINS = [
+            { key: 'a', name: 'あ', attr: '空（空間）', color: '#88aed0', bg: 'rgba(136,174,208,0.1)' },
+            { key: 'i', name: 'い', attr: '火（熱量）', color: '#e57373', bg: 'rgba(229,115,115,0.1)' },
+            { key: 'u', name: 'う', attr: '風（気体）', color: '#81c784', bg: 'rgba(129,199,132,0.1)' },
+            { key: 'e', name: 'え', attr: '水（液体）', color: '#4fc3f7', bg: 'rgba(79,195,247,0.1)' },
+            { key: 'o', name: 'お', attr: '土（固体）', color: '#bcaaa4', bg: 'rgba(188,170,164,0.1)' }
+        ];
 
-<!-- ん -->
-<div class="nn-card">
-  <div>
-    <div class="nn-kana">ん</div>
-    <div class="nn-label">Nn（無極）</div>
-    <svg width="26" height="26" viewBox="0 0 26 26" style="display:block;margin:.2rem auto;opacity:.7">
-      <circle cx="13" cy="13" r="2.5" fill="#a090c0"/>
-    </svg>
-  </div>
-  <div>
-    <div class="nn-title">虚無（ボイド）の音</div>
-    <div class="nn-tags">
-      <span class="nn-tag">数霊：０</span><span class="nn-tag">マトリクスの外</span><span class="nn-tag">色霊：透明・無</span>
-    </div>
-    <div class="nn-desc">五十音の全子音・全母音を通過した後に訪れる、息の完全な閉鎖と余韻。すべての波長が凪となり、原初の静寂へと収束していく。「０」は数字の不在ではなく、すべてのエネルギーがいつでも生まれ、いつでも還っていける母胎。</div>
-    <div class="nn-meta">形霊：中心点（ドット）— 位置だけが存在し、大きさを持たない極小にして無限の点</div>
-  </div>
-</div>
+        const SHIINS = [
+            { key: '-', name: 'あ行', label: '純粋', dist: '根源エネルギーそのもの。遮るもののない放射。', anim: '' },
+            { key: 'K', name: 'か行', label: '光輝', dist: '空間を切り裂き、外へと鋭く放射・拡張させる。', anim: 'scale-110 shadow-[0_0_10px_rgba(212,200,168,0.5)]' },
+            { key: 'G', name: 'が行', label: '暗影', dist: '光を遮蔽し、重く不気味に隠蔽・収束させる。', anim: 'brightness-50' },
+            { key: 'S', name: 'さ行', label: '間隙', dist: '次元に隙間を空け、エアポケットのように引き裂く。', anim: 'skew-x-12' },
+            { key: 'Z', name: 'ざ行', label: '充填', dist: '質量を隙間なく注ぎ込み、内側から凝縮・圧迫する。', anim: 'stroke-[3px]' },
+            { key: 'T', name: 'た行', label: '具現', dist: '具体的な実体を与え、強固な物理的障壁を築く。', anim: 'scale-95 border-2' },
+            { key: 'D', name: 'だ行', label: '定着', dist: '重力のごとく一箇所に留め、絶対に動かぬ岩盤とする。', anim: 'origin-bottom skew-y-3' },
+            { key: 'N', name: 'な行', label: '創造', dist: '存在に名を成し、虚空から実体を引き出す求心力。', anim: 'animate-pulse' },
+            { key: 'H', name: 'は行', label: '不可触', dist: '視線は届くが触れられない最果て。霞のごとく薄化する。', anim: 'opacity-40 blur-[1px]' },
+            { key: 'B', name: 'ば行', label: '打破', dist: '均衡を爆砕させ、堰き止められた力を一気に決壊させる。', anim: 'animate-bounce text-red-400' },
+            { key: 'P', name: 'ぱ行', label: '刹那', dist: 'パッと生まれては消える、軽快で弾けるような刹那の解放。', anim: 'scale-105 duration-75' },
+            { key: 'M', name: 'ま行', label: '原初', dist: 'すべての命が誕生する前の、汚れなき夢幻の羊水。', anim: 'contrast-75' },
+            { key: 'Y', name: 'や行', label: '永続', dist: '無限の空間をそのまま展開し、遮るものなく永劫に続ける。', anim: 'scale-x-125' },
+            { key: 'R', name: 'ら行', label: '流転', dist: '方向性を失ったカオス。始まりも終わりもなく渦状に回転。', anim: 'animate-spin [animation-duration:10s]' },
+            { key: 'W', name: 'わ行', label: '円環', dist: '内と外を明確に分かつ調和の結界。あるいは表裏一体の反転。', anim: 'rotate-180' }
+        ];
 
-<!-- 変調器 -->
-<div class="acc">
-  <div class="acc-header mod" onclick="toggleAcc('mod')">
-    <span class="acc-title-mod">▶ 変調器（モジュレーター）</span>
-    <span class="acc-hint acc-hint-mod" id="hint-mod">促音・拗音の波動力学　▼</span>
-  </div>
-  <div class="acc-body mod-grid" id="body-mod">
-    <div class="mod-card soku">
-      <div><span class="mod-kana soku">っ</span><span class="mod-sub soku">促音（圧搾）</span></div>
-      <div class="mod-title soku">真空のタメ — 次の音を自乗に圧縮・倍加</div>
-      <div class="mod-desc soku">音が発せられる直前の、一瞬の沈黙（真空状態）。波長が一時的にゼロになることで強烈なポテンシャルを蓄え、次に続く子音の指向性・数霊を爆発的に急進させる。</div>
-    </div>
-    <div class="mod-card you">
-      <div><span class="mod-kana you">ゃゅょ</span><span class="mod-sub you">拗音（次元上昇）</span></div>
-      <div class="mod-title you">Y（無限）の波長を交差 — 潜象世界へ強制移行</div>
-      <div class="mod-desc you">元の音にY（限りないもの）の広がりを強引に交差させ、斜め上方へ波長をねじ曲げる。必ず「い段（火の熱・意志）」の音に滑り込む性質を持つ。</div>
-      <div class="mod-ex">例：き（光の火花）→ きゃ（無限に拡散し、空間を染め上げる高次元の閃光）</div>
-    </div>
-  </div>
-</div>
+        const MATRIX_DATA = {
+            '-': { a: 'あ', i: 'い', u: 'う', e: 'え', o: 'お' },
+            'K': { a: 'か', i: 'き', u: 'く', e: 'け', o: 'こ' },
+            'G': { a: 'が', i: 'ぎ', u: 'ぐ', e: 'げ', o: 'ご' },
+            'S': { a: 'さ', i: 'し', u: 'す', e: 'せ', o: 'そ' },
+            'Z': { a: 'ざ', i: 'じ', u: 'ず', e: 'ぜ', o: 'ぞ' },
+            'T': { a: 'た', i: 'ち', u: 'つ', e: 'て', o: 'と' },
+            'D': { a: 'だ', i: 'ぢ', u: 'づ', e: 'で', o: 'ど' },
+            'N': { a: 'な', i: 'に', u: 'ぬ', e: 'ね', o: 'の' },
+            'H': { a: 'は', i: 'ひ', u: 'ふ', e: 'へ', o: 'ほ' },
+            'B': { a: 'ば', i: 'び', u: 'ぶ', e: 'べ', o: 'ぼ' },
+            'P': { a: 'ぱ', i: 'ぴ', u: 'ぷ', e: 'ぺ', o: 'ぽ' },
+            'M': { a: 'ま', i: 'み', u: 'む', e: 'め', o: 'も' },
+            'Y': { a: 'や', i: '（い）', u: 'ゆ', e: '（え）', o: 'よ' },
+            'R': { a: 'ら', i: 'り', u: 'る', e: 'れ', o: 'ろ' },
+            'W': { a: 'わ', i: '（ゐ）', u: '（う）', e: '（ゑ）', o: 'を' }
+        };
 
-<!-- 深層霊音 -->
-<div class="acc" style="margin-top:.6rem">
-  <div class="acc-header rei" onclick="toggleAcc('rei')">
-    <span class="acc-title-rei">▶ 深層霊音の項</span>
-    <span class="acc-hint acc-hint-rei" id="hint-rei">世界の裏に潜む隠れ音　▼</span>
-  </div>
-  <div class="acc-body rei-grid" id="body-rei">
-    <div class="rei-card"><div><span class="rei-kana">（い）</span><span class="rei-row">Y×い</span></div><div class="rei-meaning">永続する情熱、絶えぬ霊火</div><div class="rei-desc">あ行「い」の裏に潜む。限りない×火。</div></div>
-    <div class="rei-card"><div><span class="rei-kana">（え）</span><span class="rei-row">Y×え</span></div><div class="rei-meaning">果てなき大洋、無限の循環</div><div class="rei-desc">あ行「え」の裏に潜む。限りない×水。</div></div>
-    <div class="rei-card"><div><span class="rei-kana">（ゐ）</span><span class="rei-row">W×い</span></div><div class="rei-meaning">不滅の炉</div><div class="rei-desc">熱を内に完璧に閉じ込めた純粋エネルギー。閉鎖×火。</div></div>
-    <div class="rei-card"><div><span class="rei-kana">（う）</span><span class="rei-row">W×う</span></div><div class="rei-meaning">密閉の息吹</div><div class="rei-desc">世界を内側から密に満たす内なる風。閉鎖×風。</div></div>
-    <div class="rei-card"><div><span class="rei-kana">（ゑ）</span><span class="rei-row">W×え</span></div><div class="rei-meaning">水瓶</div><div class="rei-desc">液体を器の中に閉じ込め、保存された永劫の静水。閉鎖×水。</div></div>
-  </div>
-</div>
+        const KAZUTAMA_MAP = {
+            'ひ': 1, 'ふ': 2, 'み': 3, 'よ': 4, 'い': 5, '（い）': 5,
+            'む': 6, 'な': 7, 'や': 8, 'こ': 9, 'と': 10, 'も': 100, 'ち': 1000
+        };
 
-<!-- 数霊一覧 -->
-<div class="acc" style="margin-top:.6rem">
-  <div class="acc-header numrei" onclick="toggleAcc('numrei')">
-    <span class="acc-title-numrei">▶ 数霊の項</span>
-    <span class="acc-hint acc-hint-numrei" id="hint-numrei">０から千まで　▼</span>
-  </div>
-  <div class="acc-body numrei-grid" id="body-numrei"></div>
-</div>
+        const REION_LIST = ['（い）', '（え）', '（ゐ）', '（う）', '（ゑ）'];
 
-<!-- ━━ 言霊錬金術シミュレーター ━━ -->
-<div class="sim-wrap">
-  <div class="sim-header">
-    <span class="sim-title">言霊錬金術</span>
-    <span class="sim-subtitle">— 編纂スロット —</span>
-    <span class="sim-hint">音をクリックで積む（最大12音）・カードをクリックで除去</span>
-    <button class="sim-clear" onclick="clearStack()">清　算</button>
-  </div>
-  <div class="sim-slots" id="sim-slots">
-    <span class="sim-empty-hint">— 音をクリックして言霊を編む —</span>
-  </div>
-  <div class="sim-result" id="sim-result" style="display:none"></div>
-</div>
+        const CELL_DETAILS = {
+            'あ': '純粋な空間。すべてが始まる前の、無限に広がる虚空。',
+            'い': '純粋な熱。そこに「居る」と主張する、剥き出しの「意志」。',
+            'う': '純粋な気体。目に見えぬ、世界を巡る最初の息吹。',
+            'え': '純粋な液体。生命を潤し、すべてを融解させる源。',
+            'お': '純粋な固体。万物を受け止め、固定する大地の器。',
+            'か': '空間を切り裂く光。夜明けの輝き、世界の視界を開くもの。',
+            'き': '火花のきらめき。鋭利で、一点に集中する激しい光熱。',
+            'く': '陽炎。風や気体が光を孕んで揺らめく、実体のない輝き。',
+            'け': '水面の反射。液体に溶け込み、ゆらゆらと揺れる波紋の光。',
+            'こ': '結晶化。光が土の力で凝固し、確固たる個として輝き出す性質。',
+            'が': '虚空の闇。光の届かない、広大で不気味な空白。',
+            'ぎ': '燻る執念。激しい熱が遮られたときに生まれる、歪んだ影。',
+            'ぐ': '暗雲。光を遮る不穏な気体、嵐の前触れ。',
+            'げ': '深海。光を吸い込み、すべてを隠蔽する冷徹な底水。',
+            'ご': '岩陰。強固な固体が落とす、どっしりとした漆黒の遮蔽。',
+            'さ': '次元の狭間。空間にふっと生じた、名もなきエアポケット。',
+            'し': '死角・冷却。熱と熱の間、一瞬だけ熱量が途切れる空白。',
+            'す': '隙間風。狭いところを鋭くすり抜けていく気体の音。',
+            'せ': '清流。岩の隙間をさらさらと伝い落ちる、細く清らかな水。',
+            'そ': '亀裂。固いものに刻まれたひび割れ、最初の境界線。',
+            'ざ': '充填。虚空に質量を注ぎ込み、空白をなくすこと。',
+            'じ': '灰。熱を閉じ込め、じわじわと埋め尽くす温もり。',
+            'ず': '充満。気体が逃げ場をなくし、空間を圧迫する重苦しさ。',
+            'ぜ': '飽和。液体がこれ以上混ざらないほど満ち満ちた状態。',
+            'ぞ': '凝縮。固体同士の隙間が完全に埋まり、一体化する頑強さ。',
+            'た': '領土。ただの空間が、境界線を得て物理的な土地となったもの。',
+            'ち': '命の脈動。肉体という実体を得て激しく流れる、本能の血。',
+            'つ': '突風。目に見えない風が、質量を持って肌にぶつかる衝撃。',
+            'て': '触れる恵み。手から溢れる具体的な液体、または形ある涙。',
+            'と': '終着の壁。前進する途を物理的に遮る、実体ある土の障壁。',
+            'だ': '定位置。空間の中に、重力のごとく留まる引力。',
+            'ぢ': '消えぬ種火。大地の奥底で決して絶えることのない情念の熱。',
+            'づ': '澱み。流動するはずの風が、一箇所に根付いて動かなくなった空気。',
+            'で': '泥濘（ぬかるみ）。水が土を捉え、足元を絡め取る執拗な液体。',
+            'ど': '岩盤。地球の底にどっしりと根を張った、絶対に動かない固体。',
+            'な': '創造の言霊。虚空の中に「名」を成し、存在を誕生させる力。',
+            'に': '刻印。熱の力を加え、性質をガラリと変質・定着させること。',
+            'ぬ': '浸透。気体の力で目に見えぬまま全てを包み込み、引き剥がす力。',
+            'ね': '求心力。万物を底底で潤し、一本の糸のように繋ぎ止める液体の粘り。',
+            'の': '豊穣。固い土の底から、生命を押し上げ芽吹かせる大地の生命力。',
+            'は': '果て。視線は届くが、決して手が届かない無限の天空。',
+            'ひ': '太陽。神聖にして不可触な、世界を統べる始まりの秘めたる熱。',
+            'ふ': '神息。触れることはできないが、世界の対を揺らす聖なる風。',
+            'へ': '幻影。そこにあるように見えて、決して掌で掬えない水蒸気。',
+            'ほ': '地平線。大地が空と交わる、永久に辿り着けない幻の土。',
+            'ば': '次元決壊。空間そのものが引き裂かれ、新たな舞台が爆発的に開く。',
+            'び': '炸裂。炎が爆発し、熱量が周囲の均衡を破って飛び散る様。',
+            'ぶ': '衝撃波。大気が激しく引き裂かれ、轟音を立てる風。',
+            'べ': '決壊。堰き止められていた液体が、すべてを破壊して押し流す激流。',
+            'ぼ': '崩落。強固だった固体が、自らの重みに耐えかねて砕け落ちる様。',
+            'ぱ': '刹那の解放。空間にパッと生まれては消える、軽快な現象。',
+            'ぴ': '静電気。極小の熱が、ピリッと鋭く瞬く微細な衝撃。',
+            'ぷ': '気泡の破裂。閉じ込められていた気体が、小さく弾けて外へ出る様。',
+            'ぺ': '跳沫（しぶき）。液体が何かに衝突し、粒となって軽快に踊る様。',
+            'ぽ': '土塊の崩壊。乾いた土の粒子が、小気味よく弾けて分解する様。',
+            'ま': '真如。何の汚れもない、世界の最初から存在する絶対的な空間。',
+            'み': '生命の降臨。原初の虚無に熱が灯り、確かな実が成り溢れる奇跡。',
+            'む': '夢幻。形を成す前の霧のような風であり、すべてを無へ還す風。',
+            'め': '羊水。すべての生命が誕生する前に浸かっている、始まりの液体。',
+            'も': '母なる大地。100倍の包容力で万物を受け入れ、守り育む究極の固体。',
+            'や': '大自然。無限の空間がそのまま形となった、果てしない野山と調和。',
+            'ゆ': '常風。世界の果てから果てまで、遮るものなく吹き続ける自由な気流。',
+            'よ': '永劫の夜。時代を超えてどこまでも堆積していく、世界の底の静けさ。',
+            'ら': '乱気流。空間のあちこちで方向性が失われ、混ざり合うカオス。',
+            'り': '狂気。制御を失い、あちこちへ飛び火して燃え盛る荒ぶる炎。',
+            'る': '流転。気体が渦を巻き、始まりも終わりもなく回転し続ける状態。',
+            'れ': '渦潮。異なる液体が混ざり合い、境界線が曖昧になる混沌の渦。',
+            'ろ': '流砂。固体でありながら流動し、足場を奪う底なしの土。',
+            'わ': 'メビウスの輪。表裏どちらも途切れず存在する、終わりなき円環の波長。',
+            'を': '終焉。すべてを固体の中に閉じ込め、歴史を完結させる最後の蓋。',
+            '（い）': '永続する情熱、絶えぬ霊火。や行の深層に潜む熱。',
+            '（え）': '果てなき大洋、無限の循環。や行の深層に潜む水。',
+            '（ゐ）': '不滅の炉。熱を外部へ逃がさず、内に完璧に閉じ込めた虚数iの熱。',
+            '（う）': '密閉された気体、内なる息吹。生命が最も美しいと感じる黄金比の風。',
+            '（ゑ）': '水瓶。決まったパターンを永劫に繰り返す、閉ざされた液体の循環小数。'
+        };
 
-<!-- ━━ 数霊アコーディオン ━━ -->
-<div class="acc" style="margin-top:.75rem">
-  <div class="acc-header numrei-acc" onclick="toggleAcc('numrei')">
-    <span class="acc-title-numrei">▶ 数霊の一覧</span>
-    <span class="acc-hint acc-hint-numrei" id="hint-numrei">０から千まで、数霊を持つ音の一覧　▼</span>
-  </div>
-  <div class="acc-body numrei-grid" id="body-numrei"></div>
-</div>
+        const PROLOGUE_LINES = [
+            "世界は無だった",
+            "感じることを知らない世界は、自他の境界も概念すらなかった",
+            "世界はまだ世界ですらなかった。ただただずっと無だった",
+            "ある時、世界に亀裂が入った。初めての痛みに世界は震えた",
+            "亀裂に振動が走った。世界は感じることを知った",
+            "それと同時に、多くの感覚が生まれた",
+            "亀裂は様々な音を奏でた。世界は自他の境界を知った（皮膚：触覚）",
+            "世界は音を知覚した（耳：聴覚）し、音は世界を形作っていった（世）",
+            "世界はとうとう声を上げた（意）。驚いて一度口を閉じ（無）",
+            "改めて世界に名を与えた（名：本質、力）",
+            "自然は瞬く間にどこまでも広がった（野）",
+            "世界は全てを生み出し（言：言霊）、法則も同時に生まれた（言割：理）",
+            "初めて世界は目を開けた（色：視覚）",
+            "世界は光に溢れていた──"
+        ];
 
-<div class="legend">
-  <div class="legend-item"><div class="dot" style="background:var(--c-a)"></div><span>あ（空）しろ / 正円</span></div>
-  <div class="legend-item"><div class="dot" style="background:var(--c-i)"></div><span>い（火）あか / 正三角形</span></div>
-  <div class="legend-item"><div class="dot" style="background:var(--c-u)"></div><span>う（風）き / 螺旋</span></div>
-  <div class="legend-item"><div class="dot" style="background:var(--c-e)"></div><span>え（水）あお / 六角形</span></div>
-  <div class="legend-item"><div class="dot" style="background:var(--c-o)"></div><span>お（土）くろ / 正方形</span></div>
-  <div class="legend-item"><div class="dot" style="background:var(--reion)"></div><span>紫＝深層霊音</span></div>
-  <div class="legend-item"><div class="sq" style="background:#8a6040"></div><span>【数霊】付き</span></div>
-</div>
-<div class="footer">セルをクリックで選択固定 · 再クリックで解除 · ホバーで形霊変調を体感</div>
+        // --- 形霊SVG形状描画コンポーネント ---
+        function ShapeIcon({ type, color, className = "" }) {
+            const props = { stroke: color, strokeWidth: "1.5", fill: "none", className: `w-6 h-6 ${className}` };
+            switch (type) {
+                case 'a': return <svg viewBox="0 0 24 24" {...props}><circle cx="12" cy="12" r="9" /></svg>;
+                case 'i': return <svg viewBox="0 0 24 24" {...props}><polygon points="12,3 21,19 3,19" /></svg>;
+                case 'u': return <svg viewBox="0 0 24 24" {...props}><path d="M12,3 C17,3 21,7 21,12 C21,17 14,21 12,15 C10,9 15,7 12,11" /></svg>;
+                case 'e': return <svg viewBox="0 0 24 24" {...props}><polygon points="12,2 20,7 20,17 12,22 4,17 4,7" /></svg>;
+                case 'o': return <svg viewBox="0 0 24 24" {...props}><rect x="4" y="4" width="16" height="16" rx="1" /></svg>;
+                default: return <svg viewBox="0 0 24 24" {...props}><circle cx="12" cy="12" r="2" fill={color} /></svg>;
+            }
+        }
 
-<script>
-const VOWELS      = ["あ","い","う","え","お"];
-const VOWEL_COLORS= {"あ":"#8ab0d8","い":"#e07850","う":"#80c070","え":"#5098d0","お":"#b08840"};
-const VOWEL_BG    = {"あ":"rgba(138,176,216,.13)","い":"rgba(224,120,80,.13)","う":"rgba(128,192,112,.13)","え":"rgba(80,152,208,.13)","お":"rgba(176,136,64,.13)"};
-const VOWEL_BORDER= {"あ":"rgba(138,176,216,.7)", "い":"rgba(224,120,80,.7)", "う":"rgba(128,192,112,.7)","え":"rgba(80,152,208,.7)", "お":"rgba(176,136,64,.7)"};
+        // --- メインアプリケーション ---
+        function App() {
+            const [prologueIndex, setPrologueIndex] = useState(-1);
+            const [activeTab, setActiveTab] = useState('simulator'); // 'simulator' | 'kotowari'
+            const [showReion, setShowReion] = useState(false);
+            const [showModulator, setShowModulator] = useState(false);
+            const [hoveredCell, setHoveredCell] = useState(null);
+            const [stack, setStack] = useState([]);
 
-const IROTAMA  = {"あ":{name:"しろ",desc:"色の無い色・反射"},"い":{name:"あか",desc:"明るい色・暖色"},"う":{name:"き",desc:"輝き・蛍光色"},"え":{name:"あお",desc:"自然色・寒色"},"お":{name:"くろ",desc:"暗い色・吸収"}};
-const KATATAMA = {"あ":{name:"正円",desc:"円環・無限"},"い":{name:"正三角形",desc:"鋭利・上昇・指向性"},"う":{name:"螺旋",desc:"流動・非対称"},"え":{name:"六角形",desc:"水結晶・調和・飽和"},"お":{name:"正方形",desc:"安定・固定・四角"}};
-const DISTORTION={
-  "ー":"原形を保つ（純粋）","K":"外へ放射・拡張させる","G":"内へ反転・吸収させる",
-  "S":"縦に分割・裂断させる","Z":"圧縮・充填させる","T":"輪郭を強調・固形化させる",
-  "D":"下方へ錨付け・定着させる","N":"輪郭を命名・顕在化させる","H":"霞・薄化・遠退させる",
-  "B":"爆砕・断片化させる","P":"点状に飛散させる","M":"球状に溶融させる",
-  "Y":"無限に拡張・増殖させる","R":"渦状に回転させる","W":"内側へ閉鎖させる"
-};
+            // 初回起動時演出の判定
+            useEffect(() => {
+                const hasSeen = localStorage.getItem('kotodama_prologue_seen');
+                if (!hasSeen) {
+                    setPrologueIndex(0);
+                }
+            }, []);
 
-function makeSVG(v, color, size) {
-  const s=size, cx=s/2, cy=s/2, r=s*.37;
-  if(v==="あ") return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="1.6"/></svg>`;
-  if(v==="い") { const p=`${cx},${cy-r} ${cx-r*.866},${cy+r*.5} ${cx+r*.866},${cy+r*.5}`; return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><polygon points="${p}" fill="none" stroke="${color}" stroke-width="1.6"/></svg>`; }
-  if(v==="う") { const d=`M${cx} ${cy} C${cx+r*.35} ${cy-r*.15},${cx+r*.65} ${cy+r*.15},${cx+r*.45} ${cy+r*.5} C${cx+r*.25} ${cy+r*.85},${cx-r*.35} ${cy+r*.8},${cx-r*.65} ${cy+r*.35} C${cx-r*.9} ${cy-r*.1},${cx-r*.7} ${cy-r*.65},${cx-r*.1} ${cy-r*.75}`; return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.6"/></svg>`; }
-  if(v==="え") { const pts=Array.from({length:6},(_,i)=>{const a=(Math.PI/3)*i-Math.PI/6;return`${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`}).join(" "); return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><polygon points="${pts}" fill="none" stroke="${color}" stroke-width="1.6"/></svg>`; }
-  if(v==="お") { const side=r*1.52; return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><rect x="${cx-side/2}" y="${cy-side/2}" width="${side}" height="${side}" fill="none" stroke="${color}" stroke-width="1.6"/></svg>`; }
-  return "";
-}
+            // プロローグ送り制御
+            useEffect(() => {
+                if (prologueIndex >= 0 && prologueIndex < PROLOGUE_LINES.length) {
+                    const timer = setTimeout(() => {
+                        setPrologueIndex(prev => prev + 1);
+                    }, 4000);
+                    return () => clearTimeout(timer);
+                } else if (prologueIndex === PROLOGUE_LINES.length) {
+                    endPrologue();
+                }
+            }, [prologueIndex]);
 
-const ROWS=[
-  {con:"ROOT",label:"根源",sub:"純粋のエネルギー",cells:[{k:"あ",m:"虚空",d:"すべてが始まる前の、無限に広がる虚空。"},{k:"い",m:"意志",nr:"五",d:"そこに「居る」と主張する、剥き出しの「意志」。"},{k:"う",m:"息吹",d:"目に見えぬ、世界を巡る最初の息吹。"},{k:"え",m:"源泉",d:"生命を潤し、すべてを融解させる源。"},{k:"お",m:"器",d:"万物を受け止め、固定する大地の器。"}]},
-  {con:"K",label:"光輝",sub:"視界を開くもの",cells:[{k:"か",m:"開闢",d:"空間を切り裂く光。夜明けの輝き、世界の視界を開くもの。"},{k:"き",m:"火花",d:"鋭利で、一点に集中する激しい光熱。"},{k:"く",m:"陽炎",d:"風や気体が光を孕んで揺らめく、実体のない輝き。"},{k:"け",m:"波紋",d:"液体に溶け込み、ゆらゆらと揺れる波紋の光。"},{k:"こ",m:"結晶",nr:"九",d:"光が土の力で凝固し、確固たる「個（子）」として輝き出す性質。"}]},
-  {con:"G",label:"暗影",sub:"光の届かぬもの",cells:[{k:"が",m:"闇黒",d:"光の届かない、広大で不気味な空白。"},{k:"ぎ",m:"執念",d:"激しい熱が遮られたときに生まれる、歪んだ影。"},{k:"ぐ",m:"暗雲",d:"光を遮る不穏な気体、嵐の前触れ。"},{k:"げ",m:"深海",d:"光を吸い込み、すべてを隠蔽する冷徹な底水。"},{k:"ご",m:"岩陰",d:"強固な固体が落とす、どっしりとした漆黒の遮蔽。"}]},
-  {con:"S",label:"間隙",sub:"狭間を流れるもの",cells:[{k:"さ",m:"狭間",d:"空間にふっと生じた、名もなきエアポケット。"},{k:"し",m:"死角",d:"熱と熱の間、一瞬だけ熱量が途切れる空白。"},{k:"す",m:"隙間風",d:"狭いところを鋭くすり抜けていく気体の音。"},{k:"せ",m:"清流",d:"岩の隙間をさらさらと伝い落ちる、細く清らかな水。"},{k:"そ",m:"亀裂",d:"固いものに刻まれたひび割れ、境界線。"}]},
-  {con:"Z",label:"充填",sub:"満たし尽くすもの",cells:[{k:"ざ",m:"充填",d:"虚空に質量を注ぎ込み、空白をなくすこと。"},{k:"じ",m:"埋火",d:"熱を閉じ込め、じわじわと埋め尽くす温もり。"},{k:"ず",m:"充満",d:"気体が逃げ場をなくし、空間を圧迫する重苦しさ。"},{k:"ぜ",m:"飽和",d:"液体がこれ以上混ざらないほど満ち満ちた状態。"},{k:"ぞ",m:"凝縮",d:"固体同士の隙間が完全に埋まり、一体化する頑強さ。"}]},
-  {con:"T",label:"具現",sub:"形を得るもの",cells:[{k:"た",m:"領土",d:"ただの空間が、境界線を得て「畑・土地」という実体を持ったもの。"},{k:"ち",m:"脈動",nr:"千",d:"肉体という実体を得て激しく流れる、千倍の熱量を持った「血」。"},{k:"つ",m:"突風",d:"目に見えない風が、質量を持って肌にぶつかる衝撃。"},{k:"て",m:"具象",d:"手から溢れる具体的な液体、または形ある涙。"},{k:"と",m:"障壁",nr:"十",d:"前進する途（みち）を物理的に遮る、実体ある土の障壁。"}]},
-  {con:"D",label:"定着",sub:"留まるもの",cells:[{k:"だ",m:"定位",d:"空間の中に、重力のごとく留まる引力。"},{k:"ぢ",m:"種火",d:"大地の奥底で決して絶えることのない情念の熱。"},{k:"づ",m:"澱み",d:"流動するはずの風が、一箇所に根付いて動かなくなった空気。"},{k:"で",m:"泥濘",d:"水が土を捉え、足元を絡め取る執拗な液体。"},{k:"ど",m:"岩盤",d:"地球の底にどっしりと根を張った、絶対に動かない固体。"}]},
-  {con:"N",label:"命名",sub:"存在を生むもの",cells:[{k:"な",m:"創造",nr:"七",d:"虚空の中に「名」を成し、存在を誕生させる根源の力。"},{k:"に",m:"刻印",d:"熱の力を加え、性質をガラリと変質・定着させること。"},{k:"ぬ",m:"浸透",d:"気体の力で目に見えぬまま全てを包み込み、引き剥がす力。"},{k:"ね",m:"求心",d:"万物を底底で潤し、一本の糸のように繋ぎ止める液体の粘り。"},{k:"の",m:"豊穣",d:"固い土の底から、生命を押し上げ芽吹かせる大地の生命力。"}]},
-  {con:"H",label:"不可触",sub:"触れられぬもの",cells:[{k:"は",m:"最果",d:"視線は届くが、決して手が届かない無限の天空。"},{k:"ひ",m:"太陽",nr:"一",d:"神聖にして不可触な、世界を統べる始まりの秘めたる熱。"},{k:"ふ",m:"神息",nr:"二",d:"触れることはできないが、世界の対を揺らす聖なる風。"},{k:"へ",m:"幻影",d:"そこにあるように見えて、決して掌で掬えない水蒸気。"},{k:"ほ",m:"地平",d:"大地が空と交わる、永久に辿り着けない幻の土。"}]},
-  {con:"B",label:"打破",sub:"均衡を壊すもの",cells:[{k:"ば",m:"決壊",d:"空間そのものが引き裂かれ、新たな舞台が爆発的に開くこと。"},{k:"び",m:"炸裂",d:"炎が爆発し、熱量が周囲の均衡を破って飛び散る様。"},{k:"ぶ",m:"衝動",d:"大気が激しく引き裂かれ、轟音を立てる風。"},{k:"べ",m:"激流",d:"堰き止められていた液体が、すべてを破壊して押し流す激流。"},{k:"ぼ",m:"崩落",d:"強固だった固体が、自らの重みに耐えかねて砕け落ちる様。"}]},
-  {con:"P",label:"瞬発",sub:"軽快に散るもの",cells:[{k:"ぱ",m:"瞬刻",d:"空間にパッと生まれては消える、軽快な現象。"},{k:"ぴ",m:"静電",d:"極小の熱が、ピリッと鋭く瞬く微細な衝撃。"},{k:"ぷ",m:"破裂",d:"閉じ込められていた気体が、小さく弾けて外へ出る様。"},{k:"ぺ",m:"跳沫",d:"液体が何かに衝突し、粒となって軽快に踊る様。"},{k:"ぽ",m:"霧散",d:"乾いた土の粒子が、小気味よく弾けて分解する様。"}]},
-  {con:"M",label:"原初",sub:"始まりへ還るもの",cells:[{k:"ま",m:"真如",d:"何の汚れもない、世界の最初から存在する絶対的な空間。"},{k:"み",m:"降臨",nr:"三",d:"原初の虚無に熱が灯ることで、初めて確かな「身・実」が成り、命の潤いとして溢れ出る奇跡。"},{k:"む",m:"夢幻",nr:"六",d:"形を成す前の霧のような風であり、すべてを再び原初の無へ還す風。"},{k:"め",m:"羊水",d:"すべての生命が誕生する前に浸かっている、始まりの液体。"},{k:"も",m:"大洋",nr:"百",d:"百倍の包容力で万物を受け入れ、決して変えずに守り育む究極の固体。"}]},
-  {con:"Y",label:"無限",sub:"果てなきもの",cells:[{k:"や",m:"自然",nr:"八",d:"無限の空間がそのまま形となった、果てしない野山と調和。"},{k:"（い）",m:"霊火",d:"永続する情熱、絶えぬ霊火。あ行の「い」の裏に潜む深層霊音。",ghost:true},{k:"ゆ",m:"常風",d:"世界の果てから果てまで、遮るものなく吹き続ける自由な気流。"},{k:"（え）",m:"大洋",d:"果てなき大洋、無限の循環。あ行の「え」の裏に潜む深層霊音。",ghost:true},{k:"よ",m:"永劫",nr:"四",d:"時代を超えてどこまでも堆積していく、世界の底の静かなる土壌。"}]},
-  {con:"R",label:"流転",sub:"制御を失うもの",cells:[{k:"ら",m:"乱流",d:"空間のあちこちで方向性が失われ、混ざり合うカオス。"},{k:"り",m:"狂気",d:"制御を失い、あちこちへ飛び火して燃え盛る荒ぶる感情の炎。"},{k:"る",m:"螺旋",d:"気体が渦を巻き、始まりも終わりもなく回転し続ける状態。"},{k:"れ",m:"渦潮",d:"異なる液体が混ざり合い、境界線が曖昧になる混沌の渦。"},{k:"ろ",m:"流砂",d:"固体でありながら流動し、足場を奪う底なしの土。"}]},
-  {con:"W",label:"閉鎖",sub:"内に封じるもの",cells:[{k:"わ",m:"円環",d:"空間をぐるりと囲み、内と外を明確に分かつ調和の輪。"},{k:"（ゐ）",m:"不滅の炉",d:"熱を外部へ逃がさず、内に完璧に閉じ込めた純粋エネルギー。",ghost:true},{k:"（う）",m:"密閉の息吹",d:"あ行「う」と表記は重なるが、世界を内側から密に満たす内なる風を司る。",ghost:true},{k:"（ゑ）",m:"水瓶",d:"液体を器のなかに閉じ込め、保存された永劫の静水。",ghost:true},{k:"を",m:"終焉",d:"すべてを固体の中に閉じ込め、世界の歴史を完結させる最後の蓋。"}]},
-];
+            const endPrologue = () => {
+                localStorage.setItem('kotodama_prologue_seen', 'true');
+                setPrologueIndex(-1);
+            };
 
-let selectedTd=null, selectedCell=null, selectedVowelIdx=null, selectedRow=null;
+            const triggerResetPrologue = () => {
+                setPrologueIndex(0);
+            };
 
-const tbody=document.getElementById("tbody");
-ROWS.forEach(row=>{
-  const tr=document.createElement("tr");
-  // ラベル
-  const tdL=document.createElement("td");
-  tdL.className="row-label";
-  tdL.innerHTML=`<div><span class="row-con">${row.con==="ROOT"?"ー":row.con}</span><span class="row-name">${row.label}</span></div><div class="row-sub">${row.sub}</div>`;
-  tr.appendChild(tdL);
-  // セル
-  row.cells.forEach((cell,vi)=>{
-    const td=document.createElement("td");
-    td.className="cell-td row-"+row.con+(cell.ghost?" ghost":"");
-    const vk=VOWELS[vi], col=VOWEL_COLORS[vk];
-    td.innerHTML=`<div class="cell-inner"><div class="cell-kana" style="color:${cell.ghost?"var(--reion)":col}">${cell.k}</div>${cell.nr&&!cell.ghost?`<div class="cell-numrei">【${cell.nr}】</div>`:""}</div>`;
-    td.addEventListener("mouseenter",()=>{ if(td!==selectedTd) showPanel(cell,vi,row); });
-    td.addEventListener("mouseleave",()=>{ if(td!==selectedTd){ if(selectedCell) showPanel(selectedCell,selectedVowelIdx,selectedRow); else clearPanel(); } });
-    td.addEventListener("click",()=>{
-      // 詳細パネルをピン
-      if(td===selectedTd){ td.classList.remove("selected"); resetInner(td,cell,vi); selectedTd=selectedCell=selectedVowelIdx=selectedRow=null; clearPanel(); }
-      else {
-        if(selectedTd){ selectedTd.classList.remove("selected"); resetInner(selectedTd,selectedCell,selectedVowelIdx); }
-        selectedTd=td; selectedCell=cell; selectedVowelIdx=vi; selectedRow=row;
-        td.classList.add("selected");
-        const bg=cell.ghost?"rgba(120,60,180,.12)":VOWEL_BG[vk];
-        const br=cell.ghost?"1px solid rgba(140,60,200,.5)":`1px solid ${VOWEL_BORDER[vk]}`;
-        td.querySelector(".cell-inner").style.background=bg;
-        td.querySelector(".cell-inner").style.border=br;
-        showPanel(cell,vi,row);
-      }
-      // スタックへ追加（深層霊音は除外）
-      addToStack(cell,vi,row);
-    });
-    tr.appendChild(td);
-  });
-  tbody.appendChild(tr);
-});
+            // スタック操作
+            const addToStack = (char) => {
+                const moyin = MOYINS.find(m => char.includes(m.name)) || { key: 'none', color: '#d4c8a8' };
+                const shiin = SHIINS.find(s => {
+                    if (s.key === '-') return false;
+                    const row = MATRIX_DATA[s.key];
+                    return Object.values(row).includes(char);
+                }) || { key: '-', dist: '', anim: '' };
 
-function resetInner(td,cell,vi){
-  const inner=td.querySelector(".cell-inner");
-  inner.style.background=""; inner.style.border="1px solid transparent";
-}
+                const num = KAZUTAMA_MAP[char] || 0;
+                setStack(prev => [...prev, { id: Date.now() + Math.random(), char, num, moyin, shiin }]);
+            };
 
-function clearPanel(){
-  const p=document.getElementById("panel");
-  p.className="panel";
-  p.innerHTML=`<div class="panel-empty">— セルを選択すると解釈・形霊・色霊・変調が表示されます —</div>`;
-}
+            const removeFromStack = (id) => {
+                setStack(prev => prev.filter(item => item.id !== id));
+            };
 
-function showPanel(cell,vi,row){
-  const vk=VOWELS[vi], col=VOWEL_COLORS[vk];
-  const iro=IROTAMA[vk], kata=KATATAMA[vk], dist=DISTORTION[row.con];
-  const p=document.getElementById("panel");
-  p.className="panel "+(cell.ghost?"active-ghost":"active-normal");
+            const clearStack = () => setStack([]);
 
-  // 形霊SVG + 変調アニメーションクラス
-  let shapeHTML="";
-  if(!cell.ghost){
-    const svgStr=makeSVG(vk,col,34);
-    shapeHTML=`<div class="panel-shape-wrap"><div class="shape-${row.con}" style="display:inline-block">${svgStr}</div></div>`;
-  }
+            // --- 特殊波動力学・数理計算 ---
+            const isMebius = stack.some(item => item.char === 'わ');
+            
+            let totalKazutama = 0;
+            let displayCalcul = [];
+            
+            for (let i = 0; i < stack.length; i++) {
+                const current = stack[i];
+                if (current.char === 'っ') {
+                    if (i + 1 < stack.length && stack[i+1].num > 0) {
+                        const next = stack[i+1];
+                        totalKazutama += next.num * 2;
+                        displayCalcul.push(`(2 × ${next.num})`);
+                        i++; // 次の音を圧縮倍加として処理跨ぎ
+                    } else {
+                        displayCalcul.push("0");
+                    }
+                } else {
+                    if (current.num > 0) {
+                        totalKazutama += current.num;
+                        displayCalcul.push(`${current.num}`);
+                    } else if (current.char === 'ん') {
+                        displayCalcul.push("0");
+                    }
+                }
+            }
 
-  const tags=(cell.nr?`<span class="tag tag-numrei">数霊：${cell.nr}</span>`:"")
-    +(cell.ghost?`<span class="tag tag-reion">深層霊音</span>`:"");
+            if (isMebius) {
+                totalKazutama = -totalKazutama;
+            }
 
-  const meta=!cell.ghost?`<div class="panel-meta">
-    <div><span>形霊：</span>${kata.name}（${kata.desc}）${row.con!=="ー"?" → "+dist:""}</div>
-    <div><span>色霊：</span>${iro.name}（${iro.desc}）</div>
-  </div>`:"";
+            // 主色霊の決定（スタック内の優位な色、なければ真鍮色）
+            const mainColor = stack.length > 0 ? stack[stack.length - 1].moyin.color : '#d4c8a8';
 
-  p.innerHTML=`
-    <div style="display:flex;flex-direction:column;align-items:center;gap:.2rem;min-width:50px;flex-shrink:0">
-      <div class="panel-kana" style="color:${cell.ghost?"var(--reion)":col};text-shadow:0 0 16px ${cell.ghost?"var(--reion)":col}44">${cell.k}</div>
-      ${shapeHTML}
-    </div>
-    <div class="panel-right">
-      <div class="panel-tags">
-        <span class="panel-meaning" style="color:${cell.ghost?"#b090d0":"#d4b870"}">${cell.m}</span>${tags}
-      </div>
-      <div class="panel-desc">${cell.d}</div>
-      ${meta}
-    </div>`;
-}
+            // プロローグ画面のレンダリング
+            if (prologueIndex >= 0 && prologueIndex < PROLOGUE_LINES.length) {
+                return (
+                    <div className="fixed inset-0 bg-black flex flex-col justify-center items-center z-50 p-6 select-none">
+                        <div key={prologueIndex} className="line-fade text-center text-xl md:text-2xl font-light tracking-widest max-w-3xl leading-loose text-brass">
+                            {PROLOGUE_LINES[prologueIndex]}
+                        </div>
+                        <button 
+                            onClick={endPrologue} 
+                            className="absolute bottom-10 right-10 text-xs tracking-widest opacity-40 hover:opacity-100 border border-brass px-4 py-2 transition-all"
+                        >
+                            目を開ける（SKIP）
+                        </button>
+                    </div>
+                );
+            }
 
-function toggleAcc(id){
-  const body=document.getElementById("body-"+id);
-  const hint=document.getElementById("hint-"+id);
-  const open=body.classList.toggle("open");
-  if(id==="mod")    hint.textContent="促音・拗音の波動力学　"+(open?"▲":"▼");
-  if(id==="rei")    hint.textContent="世界の裏に潜む隠れ音　"+(open?"▲":"▼");
-  if(id==="numrei"){ hint.textContent="０から千まで　"+(open?"▲":"▼"); if(open) renderNumrei(); }
-}
+            // メイン画面のレンダリング
+            return (
+                <div className={`min-h-screen transition-all duration-1000 p-4 md:p-8 flex flex-col justify-between ${isMebius ? 'mebius-invert' : ''}`}>
+                    
+                    {/* ヘッダーエリア */}
+                    <header className="flex flex-col md:flex-row justify-between items-center border-b border-brass pb-4 mb-6">
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-widest font-serif text-brass flex items-center gap-3">
+                                言霊波動ジェネレーター <span className="text-xs border px-2 py-0.5 opacity-60">V3 COMPLETE</span>
+                            </h1>
+                            <p className="text-xs opacity-60 mt-1">理（論理マトリクス）と情動（直感の波動）の共存器</p>
+                        </div>
+                        
+                        {/* タブ切り替え ＆ 外部リンク */}
+                        <div className="flex items-center gap-4 mt-4 md:mt-0 text-sm">
+                            <button 
+                                onClick={() => setActiveTab('simulator')} 
+                                className={`px-4 py-2 tracking-widest transition-all ${activeTab === 'simulator' ? 'border-b-2 border-brass font-bold text-brass' : 'opacity-50'}`}
+                            >
+                                言霊錬金術
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab('kotowari')} 
+                                className={`px-4 py-2 tracking-widest transition-all ${activeTab === 'kotowari' ? 'border-b-2 border-brass font-bold text-brass' : 'opacity-50'}`}
+                            >
+                                言霊の理
+                            </button>
+                            <a 
+                                href="story.html" 
+                                className="opacity-60 hover:opacity-100 transition-all text-xs border border-brass px-3 py-1.5 rounded bg-amber-950/20"
+                            >
+                                聖典『世界の成り立ち』を紐解く →
+                            </a>
+                        </div>
+                    </header>
 
-/* 数霊一覧（昇順） */
-const NUMREI_LIST=[
-  {val:0,   kanji:"零", kana:"ん",   color:"#a090c0", label:"虚無（ボイド）の音"},
-  {val:1,   kanji:"一", kana:"ひ",   color:"#e07850", label:"太陽・根源の灯火"},
-  {val:2,   kanji:"二", kana:"ふ",   color:"#80c070", label:"神息・双・巫"},
-  {val:3,   kanji:"三", kana:"み",   color:"#e07850", label:"生命の降臨・実・身"},
-  {val:4,   kanji:"四", kana:"よ",   color:"#b08840", label:"永劫の夜・代・世"},
-  {val:5,   kanji:"五", kana:"い",   color:"#e07850", label:"意志・居"},
-  {val:6,   kanji:"六", kana:"む",   color:"#80c070", label:"夢幻・無・霧"},
-  {val:7,   kanji:"七", kana:"な",   color:"#8ab0d8", label:"創造の言霊・名・中・成"},
-  {val:8,   kanji:"八", kana:"や",   color:"#8ab0d8", label:"大自然・野・谷"},
-  {val:9,   kanji:"九", kana:"こ",   color:"#b08840", label:"結晶化・子・固・個"},
-  {val:10,  kanji:"十", kana:"と",   color:"#b08840", label:"終着の壁・途・停・止"},
-  {val:100, kanji:"百", kana:"も",   color:"#b08840", label:"母なる大地・最・母・保守"},
-  {val:1000,kanji:"千", kana:"ち",   color:"#e07850", label:"命の脈動・血・父・本能"},
-];
-let numreiRendered=false;
-function renderNumrei(){
-  if(numreiRendered) return;
-  numreiRendered=true;
-  const el=document.getElementById("body-numrei");
-  el.innerHTML=NUMREI_LIST.map(n=>`
-    <div class="numrei-card">
-      <div class="numrei-val" style="color:${n.color}">${n.val}</div>
-      <div class="numrei-body">
-        <div class="numrei-kana" style="color:${n.color}">${n.kana}　<span style="font-size:.68rem;color:#8a7040">${n.kanji}</span></div>
-        <div class="numrei-label">${n.label}</div>
-      </div>
-    </div>`).join("");
-}
+                    {/* メインコンテンツ */}
+                    <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start flex-grow">
+                        
+                        {/* 左・中央：盤面エリア */}
+                        <div className="lg:col-span-2 space-y-4">
+                            {activeTab === 'simulator' ? (
+                                <div className="border border-brass p-4 rounded bg-black/40 backdrop-blur">
+                                    <div className="flex justify-between items-center mb-3 text-xs opacity-70">
+                                        <span>鍵盤を叩き、言葉をスタックに送り込みなさい</span>
+                                        <div className="flex gap-4">
+                                            <button onClick={() => setShowReion(!showReion)} className="underline hover:text-brass">
+                                                {showReion ? '深層霊音を隠す' : '深層霊音を覗く'}
+                                            </button>
+                                            <button onClick={() => setShowModulator(!showModulator)} className="underline hover:text-brass">
+                                                {showModulator ? '変調器を隠す' : '変調器を開く'}
+                                            </button>
+                                        </div>
+                                    </div>
 
-/* ━━ 言霊錬金術シミュレーター ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const NUMREI_VAL={"一":1,"二":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9,"十":10,"百":100,"千":1000};
-const MAX_STACK=12;
-let stack=[];
+                                    {/* 五十音グリッドマトリクス */}
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-center border-collapse text-xs md:text-sm">
+                                            <thead>
+                                                <tr className="border-b border-brass/20">
+                                                    <th className="p-2 font-normal opacity-50 text-left">子音＼母音</th>
+                                                    {MOYINS.map(m => (
+                                                        <th key={m.key} className="p-2 font-normal" style={{ color: m.color }}>
+                                                            <div className="flex flex-col items-center gap-0.5">
+                                                                <span className="text-base font-bold">{m.name}</span>
+                                                                <span className="text-[10px] opacity-60 scale-90">{m.attr}</span>
+                                                            </div>
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {SHIINS.map(s => (
+                                                    <tr key={s.key} className="border-b border-brass/10 hover:bg-white/5 transition-all">
+                                                        <td className="p-2 text-left opacity-70 font-serif border-r border-brass/10">
+                                                            <span className="font-bold text-brass mr-1">{s.name}</span>
+                                                            <span className="text-[10px] opacity-50">[{s.label}]</span>
+                                                        </td>
+                                                        {MOYINS.map(m => {
+                                                            const char = MATRIX_DATA[s.key][m.key];
+                                                            const isReion = REION_LIST.includes(char);
+                                                            const hasNum = KAZUTAMA_MAP[char];
+                                                            
+                                                            if (isReion && !showReion) return <td key={m.key} className="p-2 opacity-10 font-mono">-</td>;
 
-function addToStack(cell,vi,row){
-  if(cell.ghost) return;
-  if(stack.length>=MAX_STACK) return;
-  stack.push({cell,vi,row});
-  renderStack();
-  // スロットまでスムーズスクロール
-  document.getElementById("sim-slots").scrollIntoView({behavior:"smooth",block:"nearest"});
-}
+                                                            return (
+                                                                <td 
+                                                                    key={m.key}
+                                                                    onClick={() => addToStack(char)}
+                                                                    onMouseEnter={() => setHoveredCell({ char, moyin: m, shiin: s })}
+                                                                    onMouseLeave={() => setHoveredCell(null)}
+                                                                    className={`p-3 cursor-pointer transition-all relative font-medium group hover:scale-105`}
+                                                                    style={{ 
+                                                                        color: isReion ? undefined : m.color,
+                                                                        opacity: isReion && !isMebius ? 0.35 : 1
+                                                                    }}
+                                                                >
+                                                                    <div className="flex flex-col items-center justify-center min-h-[32px]">
+                                                                        <span className="text-base tracking-wide font-bold group-hover:text-white transition-colors">{char}</span>
+                                                                        {hasNum && (
+                                                                            <span className="text-[9px] bg-amber-900/40 text-brass px-1 rounded border border-brass/30 scale-75 mt-0.5">
+                                                                                {hasNum}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
 
-function removeFromStack(idx){
-  stack.splice(idx,1);
-  renderStack();
-}
+                                    {/* マトリクス外独立：無極「ん」 */}
+                                    <div className="mt-4 pt-4 border-t border-brass/20 grid grid-cols-2 gap-4">
+                                        <div 
+                                            onClick={() => addToStack('ん')}
+                                            onMouseEnter={() => setHoveredCell({ char: 'ん', moyin: { name: '凪', attr: '無極', color: '#fff' }, shiin: { label: '虚無', dist: 'すべての波長が凪となり、原初の静寂へと収束する音。', anim: '' } })}
+                                            onMouseLeave={() => setHoveredCell(null)}
+                                            className="border border-dashed border-brass/40 p-3 rounded text-center cursor-pointer hover:bg-white/5 transition-all"
+                                        >
+                                            <span className="text-xs opacity-50 block mb-1">五十音の終着点 / 零</span>
+                                            <span className="text-xl font-bold text-white">ん <span className="text-xs bg-gray-700 px-1 rounded ml-1">【〇】</span></span>
+                                        </div>
 
-function clearStack(){
-  stack=[];
-  renderStack();
-}
+                                        <div className="text-xs opacity-60 flex items-center justify-center text-center">
+                                            メビウスの輪（わ）を混ぜることで、世界は潜象の反転を起こす。
+                                        </div>
+                                    </div>
 
-function renderStack(){
-  const slotsEl=document.getElementById("sim-slots");
-  const resultEl=document.getElementById("sim-result");
+                                    {/* アコーディオン：変調器モジュレーター */}
+                                    {showModulator && (
+                                        <div className="mt-4 p-3 border border-brass/30 rounded bg-amber-950/10 animate-fadeIn">
+                                            <h4 className="text-xs text-brass mb-2 tracking-widest">変化律変調器（モジュレーター）</h4>
+                                            <div className="flex gap-2">
+                                                {['っ', 'ゃ', 'ゅ', 'ょ'].map(mod => (
+                                                    <button 
+                                                        key={mod}
+                                                        onClick={() => addToStack(mod)}
+                                                        className="px-4 py-2 border border-brass/40 rounded hover:bg-white/10 text-white font-bold transition-all"
+                                                    >
+                                                        {mod}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <p className="text-[10px] opacity-50 mt-1">※っ：次音の数霊を2倍に圧搾 / ゃゅょ：い段に滑り込み高次元シフトを誘発</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                /* タブ2：言霊の理（一覧読解） */
+                                <div className="border border-brass p-6 rounded bg-black/60 space-y-6 max-h-[70vh] overflow-y-auto font-serif">
+                                    <h3 className="text-lg text-brass border-b border-brass/30 pb-2">言霊対応解説盤（一部抜粋）</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed">
+                                        <div>
+                                            <h4 className="font-bold text-red-400 mb-1">【あか】 明るい色</h4>
+                                            <p className="opacity-75">あ（虚空）＋ か（開闢）＝ 空間が開き、光が満ちた状態。光の全開。</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-400 mb-1">【くろ】 暗い色</h4>
+                                            <p className="opacity-75">く（陽炎）＋ ろ（流砂）＝ 光が風に揺らぎ、土の混沌へ沈む。光の不在。</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-emerald-400 mb-1">【みどり】 植物・緑色</h4>
+                                            <p className="opacity-75">み（原初）【三】＋ ど（定着）＋ り（流転）＝ 大枠の自然に命が根を下ろし、猛烈な熱の循環を始めた様。</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-yellow-500 mb-1">【かみ】 神・光の源流</h4>
+                                            <p className="opacity-75">か（開闢の光）＋ み（原初の生命降臨）【三】＝ 光が原初の虚無に生命の熱を灯した、すべての始まりたる超常存在。</p>
+                                        </div>
+                                    </div>
+                                    <div className="border-t border-brass/20 pt-4 text-xs opacity-60">
+                                        より包括的な神話の全貌、および「結合言霊辞書（単語定義）」は、外部書庫の <a href="story.html" className="underline text-brass font-bold">story.html</a> に美しく格納されています。
+                                    </div>
+                                </div>
+                            )}
+                        </div>
 
-  if(stack.length===0){
-    slotsEl.innerHTML=`<span class="sim-empty-hint">— 音をクリックして言霊を編む —</span>`;
-    resultEl.style.display="none";
-    return;
-  }
+                        {/* 右側：リアルタイム詳細・解説パネル */}
+                        <div className="space-y-4">
+                            <div className="border border-brass p-4 rounded bg-zinc-900/80 min-h-[220px] flex flex-col justify-between">
+                                <div>
+                                    <h3 className="text-xs text-brass opacity-60 tracking-widest uppercase mb-2">霊音波動解析パネル</h3>
+                                    {hoveredCell ? (
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between items-baseline">
+                                                <span className="text-3xl font-bold text-white">{hoveredCell.char}</span>
+                                                <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: hoveredCell.moyin.bg, color: hoveredCell.moyin.color }}>
+                                                    {hoveredCell.moyin.attr}
+                                                </span>
+                                            </div>
+                                            <div className="text-xs border-l-2 pl-2 border-brass/40 italic opacity-80">
+                                                指向変調：{hoveredCell.shiin.dist}
+                                            </div>
+                                            <p className="text-xs text-brass/90 leading-relaxed pt-2">
+                                                {CELL_DETAILS[hoveredCell.char] || 'この音の深層は、世界の余白に溶けています。'}
+                                            </p>
+                                            <div className="flex justify-center pt-2">
+                                                <ShapeIcon type={hoveredCell.moyin.key} color={hoveredCell.moyin.color} className={hoveredCell.shiin.anim} />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-xs opacity-40 text-center py-12 italic">
+                                            盤面の音に触れなさい。<br/>その波長の構成がここに映し出されます。
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="text-[10px] opacity-40 border-t border-brass/10 pt-2 text-right">
+                                    波長干渉率: 100%
+                                </div>
+                            </div>
+                            
+                            {/* 儀式の再演 */}
+                            <div className="text-center">
+                                <button 
+                                    onClick={triggerResetPrologue} 
+                                    className="text-[10px] tracking-widest opacity-30 hover:opacity-100 transition-all underline"
+                                >
+                                    ── 創世の記憶（プロローグ演出）を呼び覚ます
+                                </button>
+                            </div>
+                        </div>
+                    </main>
 
-  // ── スロットカード描画 ──
-  slotsEl.innerHTML=stack.map(({cell,vi,row},idx)=>{
-    const vk=VOWELS[vi], col=VOWEL_COLORS[vk];
-    const svgSmall=makeSVG(vk,col,22);
-    return `<div class="slot-card" onclick="removeFromStack(${idx})" title="クリックで除去">
-      <div class="slot-kana" style="color:${col}">${cell.k}</div>
-      <div class="sim-shape-item shape-${row.con}" style="line-height:1">${svgSmall}</div>
-      ${cell.nr?`<div class="slot-numrei">【${cell.nr}】</div>`:""}
-    </div>`;
-  }).join("");
+                    {/* 下部固定：言霊錬金術（数霊シミュレーター・スタックエリア） */}
+                    <footer className="mt-8 border-t border-brass/40 pt-4 bg-black/60 p-4 rounded-t-lg backdrop-blur-md">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="text-xs tracking-widest font-bold text-brass uppercase flex items-center gap-2">
+                                <span>言霊編纂スロット（錬金術領域）</span>
+                                {isMebius && <span className="text-[10px] bg-red-950 text-red-200 px-2 py-0.5 animate-pulse rounded border border-red-700">MEBIUS REVERSE</span>}
+                            </h3>
+                            {stack.length > 0 && (
+                                <button onClick={clearStack} className="text-xs opacity-50 hover:opacity-100 text-red-400 underline transition-all">
+                                    スロットを虚無へ還す
+                                </button>
+                            )}
+                        </div>
 
-  // ── 合計数霊 ──
-  let total=0, breakdown=[];
-  stack.forEach(({cell})=>{
-    if(cell.nr){ const v=NUMREI_VAL[cell.nr]||0; total+=v; breakdown.push(`${cell.k}(${cell.nr}=${v})`); }
-  });
-  const numreiHTML = total>0
-    ? `<div class="sim-result-value">${total}</div><div class="sim-result-sub">${breakdown.join(" ＋ ")}</div>`
-    : `<div class="sim-result-value" style="font-size:.78rem;color:var(--text-dim)">数霊なし</div><div class="sim-result-sub">数霊を持つ音が含まれていません</div>`;
+                        {/* 編まれた言葉のスタックバッジ表示 */}
+                        <div className="min-h-[50px] flex flex-wrap gap-2 items-center p-2 bg-zinc-950/80 rounded border border-brass/20">
+                            {stack.length === 0 ? (
+                                <span className="text-xs opacity-30 italic pl-2">言葉がまだ紡がれていません。上の盤面をクリックして音を調合してください。</span>
+                            ) : (
+                                stack.map(item => (
+                                    <div 
+                                        key={item.id} 
+                                        onClick={() => removeFromStack(item.id)}
+                                        className="flex items-center gap-1 text-sm font-bold border rounded px-2.5 py-1 cursor-pointer hover:bg-red-900/30 hover:border-red-500 transition-all select-none animate-scaleIn group"
+                                        style={{ borderColor: item.moyin.color, backgroundColor: item.moyin.bg }}
+                                    >
+                                        <span style={{ color: item.moyin.color }}>{item.char}</span>
+                                        <span className="text-[9px] opacity-40 group-hover:hidden">{item.num > 0 ? item.num : ''}</span>
+                                        <span className="text-[9px] text-red-400 hidden group-hover:inline">×</span>
+                                    </div>
+                                ))
+                            )}
+                        </div>
 
-  // ── 主色霊（最頻出母音、同数なら先着順） ──
-  const vCount={}; VOWELS.forEach(v=>vCount[v]=0);
-  stack.forEach(({vi})=>vCount[VOWELS[vi]]++);
-  let domVowel=VOWELS[stack[0].vi], maxC=0;
-  VOWELS.forEach(v=>{ if(vCount[v]>maxC){ maxC=vCount[v]; domVowel=v; } });
-  const domIro=IROTAMA[domVowel], domCol=VOWEL_COLORS[domVowel];
+                        {/* 波動測定結果（数理と波長の出力） */}
+                        {stack.length > 0 && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3 text-xs border-t border-brass/10 pt-3 animate-fadeIn">
+                                <div className="p-2 bg-white/5 rounded">
+                                    <span className="opacity-50 block mb-0.5">合計数霊（数の方程式）</span>
+                                    <div className="text-lg font-bold text-white tracking-wider">
+                                        {totalKazutama} 
+                                        <span className="text-xs opacity-50 font-normal ml-2">
+                                            = {isMebius ? '-(' : ''}{displayCalcul.join(' + ')}{isMebius ? ')' : ''}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="p-2 bg-white/5 rounded">
+                                    <span className="opacity-50 block mb-0.5">主たる色霊（光の優位性）</span>
+                                    <div className="text-sm font-bold flex items-center gap-2" style={{ color: mainColor }}>
+                                        <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: mainColor }}></span>
+                                        {stack[stack.length - 1].moyin.attr || '未確定'} の残響
+                                    </div>
+                                </div>
+                                <div className="p-2 bg-white/5 rounded">
+                                    <span className="opacity-50 block mb-0.5">形霊の連鎖（幾何学の干渉波）</span>
+                                    <div className="flex gap-1.5 items-center pt-0.5">
+                                        {stack.map((item, idx) => (
+                                            <div key={idx} title={`${item.char}: ${item.shiin.dist}`}>
+                                                <ShapeIcon type={item.moyin.key} color={item.moyin.color} className={`w-5 h-5 ${item.shiin.anim}`} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </footer>
 
-  // ── 複合形霊SVG ──
-  const shapesHTML=stack.map(({cell,vi,row})=>{
-    if(cell.ghost) return "";
-    return `<div class="sim-shape-item shape-${row.con}">${makeSVG(VOWELS[vi],VOWEL_COLORS[VOWELS[vi]],28)}</div>`;
-  }).join("");
+                </div>
+            );
+        }
 
-  resultEl.style.display="grid";
-  resultEl.innerHTML=`
-    <div class="sim-result-block">
-      <div class="sim-result-label">合計数霊</div>
-      ${numreiHTML}
-    </div>
-    <div class="sim-result-block">
-      <div class="sim-result-label">主色霊</div>
-      <div class="sim-result-value" style="display:flex;align-items:center;gap:.45rem">
-        <div style="width:13px;height:13px;border-radius:50%;background:${domCol};flex-shrink:0;box-shadow:0 0 8px ${domCol}99"></div>
-        <span style="color:${domCol}">${domIro.name}</span>
-      </div>
-      <div class="sim-result-sub">${domVowel}母音（${domIro.desc}）の優位性<br>出現数：${maxC}/${stack.length}</div>
-    </div>
-    <div class="sim-result-block">
-      <div class="sim-result-label">複合形霊</div>
-      <div class="sim-shapes">${shapesHTML||`<span style="font-size:.58rem;color:var(--text-faint)">形霊なし</span>`}</div>
-    </div>`;
-}
-
-function toggleAcc(id){
-  const body=document.getElementById("body-"+id);
-  const hint=document.getElementById("hint-"+id);
-  const open=body.classList.toggle("open");
-  if(id==="mod")    hint.textContent="促音・拗音の波動力学　"+(open?"▲":"▼");
-  if(id==="rei")    hint.textContent="世界の裏に潜む隠れ音　"+(open?"▲":"▼");
-  if(id==="numrei") hint.textContent="０から千まで、数霊を持つ音の一覧　"+(open?"▲":"▼");
-}
-
-/* ━━ 数霊一覧の生成 ━━ */
-const _NR_VAL={"一":1,"二":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9,"十":10,"百":100,"千":1000};
-const NUMREI_LIST=[{val:0,numStr:"０",kana:"ん",meaning:"虚無（ボイド）",con:"ー",vowelIdx:null}];
-ROWS.forEach(row=>{
-  row.cells.forEach((cell,vi)=>{
-    if(cell.nr&&!cell.ghost) NUMREI_LIST.push({val:_NR_VAL[cell.nr],numStr:cell.nr,kana:cell.k,meaning:cell.m,con:row.con,vowelIdx:vi});
-  });
-});
-NUMREI_LIST.sort((a,b)=>a.val-b.val);
-
-(function(){
-  const el=document.getElementById("body-numrei");
-  el.innerHTML=NUMREI_LIST.map(item=>{
-    const col=item.vowelIdx!=null?VOWEL_COLORS[VOWELS[item.vowelIdx]]:"#a090c0";
-    const svg=item.vowelIdx!=null
-      ?makeSVG(VOWELS[item.vowelIdx],col,24)
-      :`<svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.5" fill="${col}"/></svg>`;
-    return `<div class="numrei-card">
-      <div class="numrei-val">${item.val}</div>
-      <div style="display:flex;align-items:center;gap:.5rem">
-        <div style="flex-shrink:0">${svg}</div>
-        <div class="numrei-kana-col">
-          <span class="numrei-kana" style="color:${col}">${item.kana}</span>
-          <span class="numrei-meaning">${item.meaning}</span>
-          <span class="numrei-con">${item.con!=="ー"?item.con+"行":"根源"} / 数霊：${item.numStr}</span>
-        </div>
-      </div>
-    </div>`;
-  }).join("");
-})();
-</script>
+        // レンダー起動
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
