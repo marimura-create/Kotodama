@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>言霊盤：音の深層</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700;900&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #07080f;
+    --bg2:       #0c0e1a;
+    --gold:      #c8a850;
+    --gold-dim:  #7a6030;
+    --gold-fade: rgba(200,168,80,0.08);
+    --text:      #d0c4a0;
+    --text-dim:  #6a5e40;
+    --text-faint:#2e2818;
+    --border:    rgba(200,168,80,0.12);
+
+    /* 母音カラー */
+    --c-a: #8ab0d8;   /* 空・しろ */
+    --c-i: #e07850;   /* 火・あか */
+    --c-u: #80c070;   /* 風・き   */
+    --c-e: #5098d0;   /* 水・あお */
+    --c-o: #b08840;   /* 土・くろ */
+
+    --reion: #9060c0;
+    --reion-bg: rgba(90,40,140,0.1);
+    --reion-border: rgba(110,60,170,0.22);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+    min-height: 100vh;
+    padding: 2.5rem 1rem 4rem;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(200,168,80,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 90%, rgba(80,50,150,0.05) 0%, transparent 70%);
+  }
+
+  /* ── TITLE ─────────────────────────────────────── */
+  .title-wrap {
+    text-align: center;
+    margin-bottom: 2rem;
+    animation: fadeDown .7s ease both;
+  }
+  .title-sub {
+    font-size: .6rem;
+    letter-spacing: .5em;
+    color: var(--gold-dim);
+    margin-bottom: .5rem;
+  }
+  h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    letter-spacing: .25em;
+    color: #e8d890;
+    text-shadow: 0 0 40px rgba(200,180,80,0.25);
+    line-height: 1.4;
+  }
+  .title-desc {
+    font-size: .65rem;
+    color: var(--text-dim);
+    margin-top: .5rem;
+    letter-spacing: .12em;
+  }
+
+  /* ── DETAIL PANEL ───────────────────────────────── */
+  .panel {
+    min-height: 90px;
+    margin-bottom: 1.4rem;
+    padding: .9rem 1.1rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    transition: background .25s, border .25s;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    animation: fadeDown .7s .1s ease both;
+  }
+  .panel.active-normal {
+    background: rgba(200,168,80,0.06);
+    border-color: rgba(200,168,80,0.16);
+  }
+  .panel.active-ghost {
+    background: var(--reion-bg);
+    border-color: var(--reion-border);
+  }
+  .panel-empty {
+    color: var(--text-faint);
+    font-size: .72rem;
+    letter-spacing: .1em;
+    padding-top: .5rem;
+    align-self: center;
+  }
+  .panel-kana {
+    font-size: 2.4rem;
+    line-height: 1;
+    min-width: 2.8rem;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .panel-shape { margin-top: .3rem; }
+  .panel-right { flex: 1; }
+  .panel-tags {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    flex-wrap: wrap;
+    margin-bottom: .25rem;
+  }
+  .panel-meaning {
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+  }
+  .tag {
+    font-size: .52rem;
+    border-radius: 3px;
+    padding: .06rem .28rem;
+    letter-spacing: .04em;
+  }
+  .tag-numrei { color: #8a6840; border: 1px solid #5a4030; }
+  .tag-reion  { color: var(--reion); border: 1px solid rgba(110,60,170,.4); }
+  .panel-desc { font-size: .72rem; color: #8a7850; line-height: 1.6; margin-bottom: .3rem; }
+  .panel-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: .58rem;
+    color: #5a4e32;
+  }
+  .panel-meta span { color: #8a7040; }
+
+  /* ── TABLE ──────────────────────────────────────── */
+  .table-wrap {
+    overflow-x: auto;
+    padding-bottom: .5rem;
+    animation: fadeDown .7s .2s ease both;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 500px;
+  }
+  thead th {
+    padding: .5rem .3rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  thead th.label-col {
+    text-align: left;
+    padding: .5rem .7rem;
+    font-size: .56rem;
+    color: var(--text-dim);
+    letter-spacing: .1em;
+    font-weight: 400;
+  }
+  .th-kana { font-size: 1.1rem; line-height: 1.1; }
+  .th-elem { font-size: .52rem; letter-spacing: .03em; margin-top: .05rem; }
+  .th-shape { display: flex; justify-content: center; margin-top: .18rem; }
+  .th-iro  { font-size: .46rem; margin-top: .1rem; color: var(--text-dim); }
+
+  tbody tr td {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    vertical-align: middle;
+  }
+  .row-label {
+    padding: .28rem .7rem;
+    white-space: nowrap;
+  }
+  .row-con {
+    font-size: .82rem;
+    color: var(--gold);
+    font-family: monospace;
+    min-width: 1.2rem;
+    display: inline-block;
+  }
+  .row-name { font-size: .72rem; color: #7a6840; margin-left: .35rem; }
+  .row-sub  { font-size: .52rem; color: #4a3c22; }
+
+  .cell-td {
+    padding: .2rem .12rem;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .15s;
+  }
+  .cell-td:hover { transform: scale(1.1); }
+  .cell-td.selected { transform: scale(1.12); }
+  .cell-inner {
+    padding: .22rem .08rem;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    transition: background .15s, border .15s, box-shadow .15s;
+  }
+  .cell-td.selected .cell-inner,
+  .cell-td:hover .cell-inner {
+    box-shadow: 0 0 10px rgba(200,168,80,.1);
+  }
+  .cell-kana {
+    font-size: clamp(.9rem, 2.2vw, 1.2rem);
+    line-height: 1.2;
+    transition: text-shadow .15s;
+  }
+  .cell-numrei { font-size: .42rem; color: #7a5830; margin-top: .03rem; }
+  .ghost { opacity: .3; }
+  .ghost:hover { opacity: .55; }
+
+  /* ── ん CARD ─────────────────────────────────────── */
+  .nn-card {
+    margin-top: 1.5rem;
+    padding: .9rem 1.1rem;
+    background: rgba(130,110,155,0.07);
+    border: 1px solid rgba(130,110,155,0.22);
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    animation: fadeDown .7s .3s ease both;
+  }
+  .nn-kana {
+    font-size: 2rem;
+    color: #a090c0;
+    text-align: center;
+    min-width: 42px;
+    line-height: 1;
+    text-shadow: 0 0 18px rgba(150,120,200,.35);
+  }
+  .nn-label { font-size: .48rem; color: #6a5080; margin-top: .15rem; text-align: center; }
+  .nn-title { font-size: .88rem; font-weight: 700; color: #b0a0c8; }
+  .nn-tags  { display: flex; gap: .4rem; flex-wrap: wrap; margin: .2rem 0; }
+  .nn-tag   { font-size: .52rem; color: #6a5080; border: 1px solid #4a3860; border-radius: 3px; padding: .06rem .25rem; }
+  .nn-desc  { font-size: .68rem; color: #7a6890; line-height: 1.6; }
+  .nn-meta  { font-size: .58rem; color: #4a3860; margin-top: .3rem; }
+
+  /* ── ACCORDION ──────────────────────────────────── */
+  .acc {
+    margin-top: .8rem;
+    animation: fadeDown .7s .35s ease both;
+  }
+  .acc-header {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    padding: .5rem .9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity .15s;
+    user-select: none;
+  }
+  .acc-header:hover { opacity: .75; }
+  .acc-header.mod {
+    background: rgba(60,80,120,.1);
+    border: 1px solid rgba(80,120,190,.2);
+  }
+  .acc-header.rei {
+    background: var(--reion-bg);
+    border: 1px solid var(--reion-border);
+  }
+  .acc-title-mod { font-size: .65rem; color: #6888b0; letter-spacing: .12em; }
+  .acc-title-rei { font-size: .65rem; color: #9070b0; letter-spacing: .12em; }
+  .acc-hint { font-size: .55rem; margin-left: auto; }
+  .acc-hint-mod { color: #4a6080; }
+  .acc-hint-rei { color: #5a4070; }
+  .acc-body { display: none; padding-top: .75rem; }
+  .acc-body.open { display: grid; }
+
+  /* ── MODULATOR CARDS ────────────────────────────── */
+  .mod-grid { grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: .75rem; }
+  .mod-card {
+    padding: .8rem .95rem;
+    border-radius: 5px;
+  }
+  .mod-card.soku {
+    background: rgba(60,80,130,.08);
+    border: 1px solid rgba(80,120,190,.18);
+  }
+  .mod-card.you {
+    background: rgba(70,100,50,.08);
+    border: 1px solid rgba(110,160,70,.18);
+  }
+  .mod-kana  { font-size: 1.55rem; line-height: 1; }
+  .mod-kana.soku { color: #80a0d0; }
+  .mod-kana.you  { color: #90c060; }
+  .mod-sub   { font-size: .6rem; margin-left: .4rem; vertical-align: middle; }
+  .mod-sub.soku { color: #5a7090; }
+  .mod-sub.you  { color: #607050; }
+  .mod-title { font-size: .68rem; font-weight: 700; margin: .3rem 0 .2rem; }
+  .mod-title.soku { color: #88a8d8; }
+  .mod-title.you  { color: #88b058; }
+  .mod-desc  { font-size: .62rem; line-height: 1.55; }
+  .mod-desc.soku { color: #5a6880; }
+  .mod-desc.you  { color: #587050; }
+  .mod-ex {
+    font-size: .58rem;
+    margin-top: .3rem;
+    padding-top: .25rem;
+    border-top: 1px solid rgba(100,150,60,.15);
+    color: #486040;
+  }
+
+  /* ── REION CARDS ────────────────────────────────── */
+  .rei-grid { grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: .6rem; }
+  .rei-card {
+    padding: .65rem .85rem;
+    background: rgba(80,40,120,.07);
+    border: 1px solid var(--reion-border);
+    border-radius: 5px;
+  }
+  .rei-kana    { font-size: 1.3rem; color: var(--reion); }
+  .rei-row     { font-size: .56rem; color: #6a4090; font-family: monospace; margin-left: .4rem; vertical-align: middle; }
+  .rei-meaning { font-size: .72rem; font-weight: 700; color: #b090c0; margin-top: .2rem; }
+  .rei-desc    { font-size: .6rem; color: #6a5080; margin-top: .18rem; line-height: 1.5; }
+
+  /* ── LEGEND ─────────────────────────────────────── */
+  .legend {
+    margin-top: 1.5rem;
+    padding-top: .9rem;
+    border-top: 1px solid rgba(255,255,255,.04);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    justify-content: center;
+    font-size: .58rem;
+    color: #4a4030;
+    animation: fadeDown .7s .4s ease both;
+  }
+  .legend-item { display: flex; align-items: center; gap: .28rem; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .sq  { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+  .footer {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: .54rem;
+    color: var(--text-faint);
+    letter-spacing: .1em;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- TITLE -->
+<div class="title-wrap">
+  <div class="title-sub">KOTODAMA NO FUNE WO AMU — V3</div>
+  <h1>言霊盤：音の深層</h1>
+  <div class="title-desc">子音（指向性）× 母音（五元素）× 形霊（幾何）× 色霊（波長）</div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="panel" id="panel">
+  <div class="panel-empty">— セルを選択すると解釈・形霊・色霊・変調が表示されます —</div>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+<table>
+<thead>
+  <tr>
+    <th class="label-col">子音</th>
+    <th id="th-a"><div class="th-kana" style="color:var(--c-a)">あ</div><div class="th-elem" style="color:var(--c-a)">空</div><div class="th-shape"><svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="6.5" fill="none" stroke="var(--c-a)" stroke-width="1.3"/></svg></div><div class="th-iro">しろ</div></th>
+    <th id="th-i"><div class="th-kana" style="color:var(--c-i)">い</div><div class="th-elem" style="color:var(--c-i)">火</div><div class="th-shape"><svg width="18" height="18" viewBox="0 0 18 18"><polygon points="9,2 16.2,15.5 1.8,15.5" fill="none" stroke="var(--c-i)" stroke-width="1.3"/></svg></div><div class="th-iro">あか</div></th>
+    <th id="th-u"><div class="th-kana" style="color:var(--c-u)">う</div><div class="th-elem" style="color:var(--c-u)">風</div><div class="th-shape"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M9,9 C11,8.4 13,8.9 12.8,10.9 C12.5,13 10.4,14.4 8.2,13.5 C5.8,12.5 5.3,9.5 7,7.5 C8.5,5.8 11.2,5.5 12.5,7" fill="none" stroke="var(--c-u)" stroke-width="1.3"/></svg></div><div class="th-iro">き</div></th>
+    <th id="th-e"><div class="th-kana" style="color:var(--c-e)">え</div><div class="th-elem" style="color:var(--c-e)">水</div><div class="th-shape"><svg width="18" height="18" viewBox="0 0 18 18"><polygon points="9,2 15.2,5.5 15.2,12.5 9,16 2.8,12.5 2.8,5.5" fill="none" stroke="var(--c-e)" stroke-width="1.3"/></svg></div><div class="th-iro">あお</div></th>
+    <th id="th-o"><div class="th-kana" style="color:var(--c-o)">お</div><div class="th-elem" style="color:var(--c-o)">土</div><div class="th-shape"><svg width="18" height="18" viewBox="0 0 18 18"><rect x="3" y="3" width="12" height="12" fill="none" stroke="var(--c-o)" stroke-width="1.3"/></svg></div><div class="th-iro">くろ</div></th>
+  </tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<!-- ん CARD -->
+<div class="nn-card">
+  <div>
+    <div class="nn-kana">ん</div>
+    <div class="nn-label">Nn（無極）</div>
+    <svg width="26" height="26" viewBox="0 0 26 26" style="display:block;margin:.2rem auto;opacity:.7">
+      <circle cx="13" cy="13" r="2.5" fill="#a090c0"/>
+    </svg>
+  </div>
+  <div>
+    <div class="nn-title">虚無（ボイド）の音</div>
+    <div class="nn-tags">
+      <span class="nn-tag">数霊：０</span>
+      <span class="nn-tag">マトリクスの外</span>
+      <span class="nn-tag">色霊：透明・無</span>
+    </div>
+    <div class="nn-desc">五十音の全子音・全母音を通過した後に訪れる、息の完全な閉鎖と余韻。すべての波長が凪となり、原初の静寂へと収束していく。「０」は数字の不在ではなく、すべてのエネルギーがいつでも生まれ、いつでも還っていける母胎。</div>
+    <div class="nn-meta">形霊：中心点（ドット）— 位置だけが存在し、大きさを持たない極小にして無限の点</div>
+  </div>
+</div>
+
+<!-- MODULATOR ACCORDION -->
+<div class="acc">
+  <div class="acc-header mod" onclick="toggleAcc('mod')">
+    <span class="acc-title-mod">▶ 変調器（モジュレーター）</span>
+    <span class="acc-hint acc-hint-mod" id="hint-mod">促音・拗音の波動力学　▼</span>
+  </div>
+  <div class="acc-body mod-grid" id="body-mod">
+    <div class="mod-card soku">
+      <div><span class="mod-kana soku">っ</span><span class="mod-sub soku">促音（圧搾）</span></div>
+      <div class="mod-title soku">真空のタメ — 次の音を自乗に圧縮・倍加</div>
+      <div class="mod-desc soku">音が発せられる直前の、一瞬の沈黙（真空状態）。波長が一時的にゼロになることで強烈なポテンシャルを蓄え、次に続く子音の指向性・数霊を爆発的に急進させる。</div>
+    </div>
+    <div class="mod-card you">
+      <div><span class="mod-kana you">ゃゅょ</span><span class="mod-sub you">拗音（次元上昇）</span></div>
+      <div class="mod-title you">Y（無限）の波長を交差 — 潜象世界へ強制移行</div>
+      <div class="mod-desc you">元の音にY（限りないもの）の広がりを強引に交差させ、斜め上方へ波長をねじ曲げる。必ず「い段（火の熱・意志）」の音に滑り込む性質を持つ。</div>
+      <div class="mod-ex">例：き（光の火花）→ きゃ（無限に拡散し、空間を染め上げる高次元の閃光）</div>
+    </div>
+  </div>
+</div>
+
+<!-- REION ACCORDION -->
+<div class="acc" style="margin-top:.6rem">
+  <div class="acc-header rei" onclick="toggleAcc('rei')">
+    <span class="acc-title-rei">▶ 深層霊音の項</span>
+    <span class="acc-hint acc-hint-rei" id="hint-rei">世界の裏に潜む隠れ音　▼</span>
+  </div>
+  <div class="acc-body rei-grid" id="body-rei">
+    <div class="rei-card"><div><span class="rei-kana">（い）</span><span class="rei-row">Y×い</span></div><div class="rei-meaning">永続する情熱、絶えぬ霊火</div><div class="rei-desc">あ行「い」の裏に潜む。限りない×火。</div></div>
+    <div class="rei-card"><div><span class="rei-kana">（え）</span><span class="rei-row">Y×え</span></div><div class="rei-meaning">果てなき大洋、無限の循環</div><div class="rei-desc">あ行「え」の裏に潜む。限りない×水。</div></div>
+    <div class="rei-card"><div><span class="rei-kana">（ゐ）</span><span class="rei-row">W×い</span></div><div class="rei-meaning">不滅の炉</div><div class="rei-desc">熱を内に完璧に閉じ込めた純粋エネルギー。閉鎖×火。</div></div>
+    <div class="rei-card"><div><span class="rei-kana">（う）</span><span class="rei-row">W×う</span></div><div class="rei-meaning">密閉の息吹</div><div class="rei-desc">世界を内側から密に満たす内なる風。閉鎖×風。</div></div>
+    <div class="rei-card"><div><span class="rei-kana">（ゑ）</span><span class="rei-row">W×え</span></div><div class="rei-meaning">水瓶</div><div class="rei-desc">液体を器の中に閉じ込め、保存された永劫の静水。閉鎖×水。</div></div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="dot" style="background:var(--c-a)"></div><span>あ（空）しろ / 正円</span></div>
+  <div class="legend-item"><div class="dot" style="background:var(--c-i)"></div><span>い（火）あか / 正三角形</span></div>
+  <div class="legend-item"><div class="dot" style="background:var(--c-u)"></div><span>う（風）き / 螺旋</span></div>
+  <div class="legend-item"><div class="dot" style="background:var(--c-e)"></div><span>え（水）あお / 六角形</span></div>
+  <div class="legend-item"><div class="dot" style="background:var(--c-o)"></div><span>お（土）くろ / 正方形</span></div>
+  <div class="legend-item"><div class="dot" style="background:var(--reion)"></div><span>紫＝深層霊音</span></div>
+  <div class="legend-item"><div class="sq" style="background:#8a6040"></div><span>【数霊】付き</span></div>
+</div>
+<div class="footer">セルをクリックで選択固定 · 再クリックで解除</div>
+
+<script>
+// ── データ定義 ────────────────────────────────────────────
+const VOWELS = ["あ","い","う","え","お"];
+const VOWEL_COLORS = { "あ":"var(--c-a)", "い":"var(--c-i)", "う":"var(--c-u)", "え":"var(--c-e)", "お":"var(--c-o)" };
+const VOWEL_BG     = { "あ":"rgba(138,176,216,.13)", "い":"rgba(224,120,80,.13)", "う":"rgba(128,192,112,.13)", "え":"rgba(80,152,208,.13)", "お":"rgba(176,136,64,.13)" };
+const VOWEL_BORDER = { "あ":"rgba(138,176,216,.7)", "い":"rgba(224,120,80,.7)", "う":"rgba(128,192,112,.7)", "え":"rgba(80,152,208,.7)", "お":"rgba(176,136,64,.7)" };
+
+const IROTAMA = {
+  "あ":{ name:"しろ", desc:"色の無い色・反射" },
+  "い":{ name:"あか", desc:"明るい色・暖色" },
+  "う":{ name:"き",   desc:"輝き・蛍光色" },
+  "え":{ name:"あお", desc:"自然色・寒色" },
+  "お":{ name:"くろ", desc:"暗い色・吸収" },
+};
+const KATATAMA = {
+  "あ":{ name:"正円",     desc:"円環・無限" },
+  "い":{ name:"正三角形", desc:"鋭利・上昇・指向性" },
+  "う":{ name:"螺旋",     desc:"流動・非対称" },
+  "え":{ name:"六角形",   desc:"水結晶・調和・飽和" },
+  "お":{ name:"正方形",   desc:"安定・固定・四角" },
+};
+const DISTORTION = {
+  "ー":"原形を保つ（純粋）",
+  "K":"外へ放射・拡張させる",
+  "G":"内へ反転・吸収させる",
+  "S":"縦に分割・裂断させる",
+  "Z":"圧縮・充填させる",
+  "T":"輪郭を強調・固形化させる",
+  "D":"下方へ錨付け・定着させる",
+  "N":"輪郭を命名・顕在化させる",
+  "H":"霞・薄化・遠退させる",
+  "B":"爆砕・断片化させる",
+  "P":"点状に飛散させる",
+  "M":"球状に溶融させる",
+  "Y":"無限に拡張・増殖させる",
+  "R":"渦状に回転させる",
+  "W":"内側へ閉鎖させる",
+};
+
+// 形霊SVG（ヘッダー列用・大）
+function shapeSVG(v, color, size) {
+  const s=size, cx=s/2, cy=s/2, r=s*0.37;
+  if(v==="あ") return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="1.5"/></svg>`;
+  if(v==="い") {
+    const pts=`${cx},${cy-r} ${cx-r*.866},${cy+r*.5} ${cx+r*.866},${cy+r*.5}`;
+    return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><polygon points="${pts}" fill="none" stroke="${color}" stroke-width="1.5"/></svg>`;
+  }
+  if(v==="う") {
+    const d=`M ${cx} ${cy} C ${cx+r*.35} ${cy-r*.15}, ${cx+r*.65} ${cy+r*.15}, ${cx+r*.45} ${cy+r*.5} C ${cx+r*.25} ${cy+r*.85}, ${cx-r*.35} ${cy+r*.8}, ${cx-r*.65} ${cy+r*.35} C ${cx-r*.9} ${cy-r*.1}, ${cx-r*.7} ${cy-r*.65}, ${cx-r*.1} ${cy-r*.75}`;
+    return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.5"/></svg>`;
+  }
+  if(v==="え") {
+    const pts=Array.from({length:6},(_,i)=>{const a=(Math.PI/3)*i-Math.PI/6; return `${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`;}).join(" ");
+    return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><polygon points="${pts}" fill="none" stroke="${color}" stroke-width="1.5"/></svg>`;
+  }
+  if(v==="お") {
+    const side=r*1.52;
+    return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><rect x="${cx-side/2}" y="${cy-side/2}" width="${side}" height="${side}" fill="none" stroke="${color}" stroke-width="1.5"/></svg>`;
+  }
+  return "";
+}
+
+// パネル用形霊SVG
+function shapeSVGPanel(v, color) {
+  return shapeSVG(v, color, 30);
+}
+
+const ROWS = [
+  { con:"ー", label:"根源", sub:"純粋のエネルギー", cells:[
+    {k:"あ",m:"虚空",   d:"すべてが始まる前の、無限に広がる虚空。"},
+    {k:"い",m:"意志",   d:"そこに「居る」と主張する、剥き出しの「意志」。", nr:"五"},
+    {k:"う",m:"息吹",   d:"目に見えぬ、世界を巡る最初の息吹。"},
+    {k:"え",m:"源泉",   d:"生命を潤し、すべてを融解させる源。"},
+    {k:"お",m:"器",     d:"万物を受け止め、固定する大地の器。"},
+  ]},
+  { con:"K", label:"光輝", sub:"視界を開くもの", cells:[
+    {k:"か",m:"開闢",   d:"空間を切り裂く光。夜明けの輝き、世界の視界を開くもの。"},
+    {k:"き",m:"火花",   d:"鋭利で、一点に集中する激しい光熱。"},
+    {k:"く",m:"陽炎",   d:"風や気体が光を孕んで揺らめく、実体のない輝き。"},
+    {k:"け",m:"波紋",   d:"液体に溶け込み、ゆらゆらと揺れる波紋の光。"},
+    {k:"こ",m:"結晶",   d:"光が土の力で凝固し、確固たる「個（子）」として輝き出す性質。", nr:"九"},
+  ]},
+  { con:"G", label:"暗影", sub:"光の届かぬもの", cells:[
+    {k:"が",m:"闇黒",   d:"光の届かない、広大で不気味な空白。"},
+    {k:"ぎ",m:"執念",   d:"激しい熱が遮られたときに生まれる、歪んだ影。"},
+    {k:"ぐ",m:"暗雲",   d:"光を遮る不穏な気体、嵐の前触れ。"},
+    {k:"げ",m:"深海",   d:"光を吸い込み、すべてを隠蔽する冷徹な底水。"},
+    {k:"ご",m:"岩陰",   d:"強固な固体が落とす、どっしりとした漆黒の遮蔽。"},
+  ]},
+  { con:"S", label:"間隙", sub:"狭間を流れるもの", cells:[
+    {k:"さ",m:"狭間",   d:"空間にふっと生じた、名もなきエアポケット。"},
+    {k:"し",m:"死角",   d:"熱と熱の間、一瞬だけ熱量が途切れる空白。"},
+    {k:"す",m:"隙間風", d:"狭いところを鋭くすり抜けていく気体の音。"},
+    {k:"せ",m:"清流",   d:"岩の隙間をさらさらと伝い落ちる、細く清らかな水。"},
+    {k:"そ",m:"亀裂",   d:"固いものに刻まれたひび割れ、境界線。"},
+  ]},
+  { con:"Z", label:"充填", sub:"満たし尽くすもの", cells:[
+    {k:"ざ",m:"充填",   d:"虚空に質量を注ぎ込み、空白をなくすこと。"},
+    {k:"じ",m:"埋火",   d:"熱を閉じ込め、じわじわと埋め尽くす温もり。"},
+    {k:"ず",m:"充満",   d:"気体が逃げ場をなくし、空間を圧迫する重苦しさ。"},
+    {k:"ぜ",m:"飽和",   d:"液体がこれ以上混ざらないほど満ち満ちた状態。"},
+    {k:"ぞ",m:"凝縮",   d:"固体同士の隙間が完全に埋まり、一体化する頑強さ。"},
+  ]},
+  { con:"T", label:"具現", sub:"形を得るもの", cells:[
+    {k:"た",m:"領土",   d:"ただの空間が、境界線を得て「畑・土地」という実体を持ったもの。"},
+    {k:"ち",m:"脈動",   d:"肉体という実体を得て激しく流れる、千倍の熱量を持った「血」。", nr:"千"},
+    {k:"つ",m:"突風",   d:"目に見えない風が、質量を持って肌にぶつかる衝撃。"},
+    {k:"て",m:"具象",   d:"手から溢れる具体的な液体、または形ある涙。"},
+    {k:"と",m:"障壁",   d:"前進する途（みち）を物理的に遮る、実体ある土の障壁。", nr:"十"},
+  ]},
+  { con:"D", label:"定着", sub:"留まるもの", cells:[
+    {k:"だ",m:"定位",   d:"空間の中に、重力のごとく留まる引力。"},
+    {k:"ぢ",m:"種火",   d:"大地の奥底で決して絶えることのない情念の熱。"},
+    {k:"づ",m:"澱み",   d:"流動するはずの風が、一箇所に根付いて動かなくなった空気。"},
+    {k:"で",m:"泥濘",   d:"水が土を捉え、足元を絡め取る執拗な液体。"},
+    {k:"ど",m:"岩盤",   d:"地球の底にどっしりと根を張った、絶対に動かない固体。"},
+  ]},
+  { con:"N", label:"命名", sub:"存在を生むもの", cells:[
+    {k:"な",m:"創造",   d:"虚空の中に「名」を成し、存在を誕生させる根源の力。", nr:"七"},
+    {k:"に",m:"刻印",   d:"熱の力を加え、性質をガラリと変質・定着させること。"},
+    {k:"ぬ",m:"浸透",   d:"気体の力で目に見えぬまま全てを包み込み、引き剥がす力。"},
+    {k:"ね",m:"求心",   d:"万物を底底で潤し、一本の糸のように繋ぎ止める液体の粘り。"},
+    {k:"の",m:"豊穣",   d:"固い土の底から、生命を押し上げ芽吹かせる大地の生命力。"},
+  ]},
+  { con:"H", label:"不可触", sub:"触れられぬもの", cells:[
+    {k:"は",m:"最果",   d:"視線は届くが、決して手が届かない無限の天空。"},
+    {k:"ひ",m:"太陽",   d:"神聖にして不可触な、世界を統べる始まりの秘めたる熱。", nr:"一"},
+    {k:"ふ",m:"神息",   d:"触れることはできないが、世界の対を揺らす聖なる風。", nr:"二"},
+    {k:"へ",m:"幻影",   d:"そこにあるように見えて、決して掌で掬えない水蒸気。"},
+    {k:"ほ",m:"地平",   d:"大地が空と交わる、永久に辿り着けない幻の土。"},
+  ]},
+  { con:"B", label:"打破", sub:"均衡を壊すもの", cells:[
+    {k:"ば",m:"決壊",   d:"空間そのものが引き裂かれ、新たな舞台が爆発的に開くこと。"},
+    {k:"び",m:"炸裂",   d:"炎が爆発し、熱量が周囲の均衡を破って飛び散る様。"},
+    {k:"ぶ",m:"衝動",   d:"大気が激しく引き裂かれ、轟音を立てる風。"},
+    {k:"べ",m:"激流",   d:"堰き止められていた液体が、すべてを破壊して押し流す激流。"},
+    {k:"ぼ",m:"崩落",   d:"強固だった固体が、自らの重みに耐えかねて砕け落ちる様。"},
+  ]},
+  { con:"P", label:"瞬発", sub:"軽快に散るもの", cells:[
+    {k:"ぱ",m:"瞬刻",   d:"空間にパッと生まれては消える、軽快な現象。"},
+    {k:"ぴ",m:"静電",   d:"極小の熱が、ピリッと鋭く瞬く微細な衝撃。"},
+    {k:"ぷ",m:"破裂",   d:"閉じ込められていた気体が、小さく弾けて外へ出る様。"},
+    {k:"ぺ",m:"跳沫",   d:"液体が何かに衝突し、粒となって軽快に踊る様。"},
+    {k:"ぽ",m:"霧散",   d:"乾いた土の粒子が、小気味よく弾けて分解する様。"},
+  ]},
+  { con:"M", label:"原初", sub:"始まりへ還るもの", cells:[
+    {k:"ま",m:"真如",   d:"何の汚れもない、世界の最初から存在する絶対的な空間。"},
+    {k:"み",m:"降臨",   d:"原初の虚無に熱が灯ることで、初めて確かな「身・実」が成り、命の潤いとして溢れ出る奇跡。", nr:"三"},
+    {k:"む",m:"夢幻",   d:"形を成す前の霧のような風であり、すべてを再び原初の無へ還す風。", nr:"六"},
+    {k:"め",m:"羊水",   d:"すべての生命が誕生する前に浸かっている、始まりの液体。"},
+    {k:"も",m:"大洋",   d:"百倍の包容力で万物を受け入れ、決して変えずに守り育む究極の固体。", nr:"百"},
+  ]},
+  { con:"Y", label:"無限", sub:"果てなきもの", cells:[
+    {k:"や",  m:"自然",    d:"無限の空間がそのまま形となった、果てしない野山と調和。", nr:"八"},
+    {k:"（い）",m:"霊火",  d:"永続する情熱、絶えぬ霊火。あ行の「い」の裏に潜む深層霊音。", ghost:true},
+    {k:"ゆ",  m:"常風",    d:"世界の果てから果てまで、遮るものなく吹き続ける自由な気流。"},
+    {k:"（え）",m:"大洋",  d:"果てなき大洋、無限の循環。あ行の「え」の裏に潜む深層霊音。", ghost:true},
+    {k:"よ",  m:"永劫",    d:"時代を超えてどこまでも堆積していく、世界の底の静かなる土壌。", nr:"四"},
+  ]},
+  { con:"R", label:"流転", sub:"制御を失うもの", cells:[
+    {k:"ら",m:"乱流",   d:"空間のあちこちで方向性が失われ、混ざり合うカオス。"},
+    {k:"り",m:"狂気",   d:"制御を失い、あちこちへ飛び火して燃え盛る荒ぶる感情の炎。"},
+    {k:"る",m:"螺旋",   d:"気体が渦を巻き、始まりも終わりもなく回転し続ける状態。"},
+    {k:"れ",m:"渦潮",   d:"異なる液体が混ざり合い、境界線が曖昧になる混沌の渦。"},
+    {k:"ろ",m:"流砂",   d:"固体でありながら流動し、足場を奪う底なしの土。"},
+  ]},
+  { con:"W", label:"閉鎖", sub:"内に封じるもの", cells:[
+    {k:"わ",    m:"円環",      d:"空間をぐるりと囲み、内と外を明確に分かつ調和の輪。"},
+    {k:"（ゐ）",m:"不滅の炉",  d:"熱を外部へ逃がさず、内に完璧に閉じ込めた純粋エネルギー。", ghost:true},
+    {k:"（う）",m:"密閉の息吹",d:"あ行「う」と表記は重なるが、世界を内側から密に満たす内なる風を司る。", ghost:true},
+    {k:"（ゑ）",m:"水瓶",      d:"液体を器のなかに閉じ込め、保存された永劫の静水。", ghost:true},
+    {k:"を",    m:"終焉",      d:"すべてを固体の中に閉じ込め、世界の歴史を完結させる最後の蓋。"},
+  ]},
+];
+
+// ── テーブル生成 ──────────────────────────────────────────
+let selectedTd = null;
+let selectedCell = null;
+let selectedVowelIdx = null;
+
+const tbody = document.getElementById("tbody");
+
+ROWS.forEach(row => {
+  const tr = document.createElement("tr");
+
+  // ラベル列
+  const tdLabel = document.createElement("td");
+  tdLabel.className = "row-label";
+  tdLabel.innerHTML = `<div><span class="row-con">${row.con}</span><span class="row-name">${row.label}</span></div><div class="row-sub">${row.sub}</div>`;
+  tr.appendChild(tdLabel);
+
+  // セル列
+  row.cells.forEach((cell, vi) => {
+    const td = document.createElement("td");
+    td.className = "cell-td" + (cell.ghost ? " ghost" : "");
+    const vkana = VOWELS[vi];
+    const color = VOWEL_COLORS[vkana];
+    td.innerHTML = `
+      <div class="cell-inner">
+        <div class="cell-kana" style="color:${cell.ghost ? "var(--reion)" : color}">${cell.k}</div>
+        ${cell.nr && !cell.ghost ? `<div class="cell-numrei">【${cell.nr}】</div>` : ""}
+      </div>`;
+
+    td.addEventListener("mouseenter", () => {
+      if (td !== selectedTd) showPanel(cell, vi, row, false);
+    });
+    td.addEventListener("mouseleave", () => {
+      if (td !== selectedTd) {
+        if (selectedCell) showPanel(selectedCell, selectedVowelIdx, ROWS.find(r=>r.cells.includes(selectedCell)), true);
+        else clearPanel();
+      }
+    });
+    td.addEventListener("click", () => {
+      if (td === selectedTd) {
+        // 解除
+        selectedTd.classList.remove("selected");
+        selectedTd.querySelector(".cell-inner").style.background = "";
+        selectedTd.querySelector(".cell-inner").style.border = "1px solid transparent";
+        selectedTd = null; selectedCell = null; selectedVowelIdx = null;
+        clearPanel();
+      } else {
+        if (selectedTd) {
+          selectedTd.classList.remove("selected");
+          selectedTd.querySelector(".cell-inner").style.background = "";
+          selectedTd.querySelector(".cell-inner").style.border = "1px solid transparent";
+        }
+        selectedTd = td; selectedCell = cell; selectedVowelIdx = vi;
+        td.classList.add("selected");
+        const bg = cell.ghost ? "rgba(120,60,180,.12)" : VOWEL_BG[vkana];
+        const br = cell.ghost ? "1px solid rgba(140,60,200,.5)" : `1px solid ${VOWEL_BORDER[vkana]}`;
+        td.querySelector(".cell-inner").style.background = bg;
+        td.querySelector(".cell-inner").style.border = br;
+        showPanel(cell, vi, row, true);
+      }
+    });
+
+    tr.appendChild(td);
+  });
+  tbody.appendChild(tr);
+});
+
+function clearPanel() {
+  const p = document.getElementById("panel");
+  p.className = "panel";
+  p.innerHTML = `<div class="panel-empty">— セルを選択すると解釈・形霊・色霊・変調が表示されます —</div>`;
+}
+
+function showPanel(cell, vi, row, isPinned) {
+  const vkana = VOWELS[vi];
+  const color = cell.ghost ? "var(--reion)" : VOWEL_COLORS[vkana];
+  const iro   = IROTAMA[vkana];
+  const kata  = KATATAMA[vkana];
+  const dist  = DISTORTION[row.con];
+  const p = document.getElementById("panel");
+  p.className = "panel " + (cell.ghost ? "active-ghost" : "active-normal");
+
+  let shapeSVGStr = "";
+  if (!cell.ghost) {
+    shapeSVGStr = `<div class="panel-shape">${shapeSVGPanel(vkana, VOWEL_COLORS[vkana].replace("var(--c-a)","#8ab0d8").replace("var(--c-i)","#e07850").replace("var(--c-u)","#80c070").replace("var(--c-e)","#5098d0").replace("var(--c-o)","#b08840"))}</div>`;
+    // 色を直値で渡す
+    const colorMap = {"あ":"#8ab0d8","い":"#e07850","う":"#80c070","え":"#5098d0","お":"#b08840"};
+    shapeSVGStr = `<div class="panel-shape">${shapeSVG(vkana, colorMap[vkana], 30)}</div>`;
+  }
+
+  const tagsHTML =
+    (cell.nr ? `<span class="tag tag-numrei">数霊：${cell.nr}</span>` : "") +
+    (cell.ghost ? `<span class="tag tag-reion">深層霊音</span>` : "");
+
+  const metaHTML = (!cell.ghost) ? `
+    <div class="panel-meta">
+      <span>形霊：</span>${kata.name}（${kata.desc}）${row.con !== "ー" ? ` → ${dist}` : ""}
+      &ensp;<span>色霊：</span>${iro.name}（${iro.desc}）
+    </div>` : "";
+
+  p.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.2rem;min-width:44px">
+      <div class="panel-kana" style="color:${color};text-shadow:0 0 16px ${color}44">${cell.k}</div>
+      ${shapeSVGStr}
+    </div>
+    <div class="panel-right">
+      <div class="panel-tags">
+        <span class="panel-meaning" style="color:${cell.ghost?"#b090d0":"#d4b870"}">${cell.m}</span>
+        ${tagsHTML}
+      </div>
+      <div class="panel-desc">${cell.d}</div>
+      ${metaHTML}
+    </div>`;
+}
+
+// ── アコーディオン ────────────────────────────────────────
+function toggleAcc(id) {
+  const body = document.getElementById("body-" + id);
+  const hint = document.getElementById("hint-" + id);
+  const isOpen = body.classList.contains("open");
+  body.classList.toggle("open");
+  if (id === "mod") hint.textContent = "促音・拗音の波動力学　" + (isOpen ? "▼" : "▲");
+  if (id === "rei") hint.textContent = "世界の裏に潜む隠れ音　" + (isOpen ? "▼" : "▲");
+}
+</script>
+</body>
+</html>
